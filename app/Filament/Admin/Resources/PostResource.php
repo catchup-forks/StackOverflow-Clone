@@ -6,6 +6,7 @@ use App\Filament\Admin\Resources\PostResource\Pages;
 use App\Filament\Admin\Resources\PostResource\Schemas\PostForm;
 use App\Filament\Admin\Resources\PostResource\Tables\PostTable;
 use App\Models\Post;
+use App\Models\Tag;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Table;
@@ -49,8 +50,6 @@ class PostResource extends Resource
     {
         return [
             'index' => Pages\ListPosts::route('/'),
-            'create' => Pages\CreatePost::route('/create'),
-            'edit' => Pages\EditPost::route('/{record}/edit'),
         ];
     }
 
@@ -63,6 +62,37 @@ class PostResource extends Resource
     {
         return parent::getEloquentQuery()
             ->orderByDesc('creation_date');
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array{0: array<string, mixed>, 1: array<int, string>}
+     */
+    public static function prepareTagPayload(array $data): array
+    {
+        $tagNames = collect($data['tags'] ?? [])
+            ->map(fn ($tag) => trim((string) $tag))
+            ->filter()
+            ->map(fn (string $tag) => strtolower($tag))
+            ->unique()
+            ->values()
+            ->all();
+
+        $data['tags'] = implode(',', $tagNames);
+
+        return [$data, $tagNames];
+    }
+
+    /**
+     * @param  array<int, string>  $tagNames
+     */
+    public static function syncTags(Post $post, array $tagNames): void
+    {
+        $tagIds = collect($tagNames)
+            ->map(fn (string $tag) => Tag::query()->firstOrCreate(['name' => $tag], ['count' => 0])->id)
+            ->all();
+
+        $post->tags()->sync($tagIds);
     }
 }
 

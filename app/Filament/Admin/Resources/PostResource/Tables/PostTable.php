@@ -2,6 +2,9 @@
 
 namespace App\Filament\Admin\Resources\PostResource\Tables;
 
+use App\Filament\Admin\Resources\PostResource;
+use App\Filament\Admin\Resources\PostResource\Schemas\PostForm;
+use App\Models\Post;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -11,6 +14,8 @@ class PostTable
 {
     public static function configure(Tables\Table $table): Tables\Table
     {
+        $tagNamesForEdit = [];
+
         return $table
             ->columns([
                 TextColumn::make('id')
@@ -49,7 +54,16 @@ class PostTable
                     ->query(fn ($query) => $query->where('is_blog', true)),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->form(PostForm::schema())
+                    ->mutateFormDataUsing(function (array $data) use (&$tagNamesForEdit): array {
+                        [$data, $tagNamesForEdit] = PostResource::prepareTagPayload($data);
+
+                        return $data;
+                    })
+                    ->after(function (Post $record) use (&$tagNamesForEdit): void {
+                        PostResource::syncTags($record, $tagNamesForEdit);
+                    }),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([

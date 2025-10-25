@@ -32,8 +32,6 @@ class BadgeResource extends Resource
     {
         return [
             'index' => Pages\ListBadges::route('/'),
-            'create' => Pages\CreateBadge::route('/create'),
-            'edit' => Pages\EditBadge::route('/{record}/edit'),
         ];
     }
 }

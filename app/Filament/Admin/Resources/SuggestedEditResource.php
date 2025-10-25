@@ -32,8 +32,6 @@ class SuggestedEditResource extends Resource
     {
         return [
             'index' => Pages\ListSuggestedEdits::route('/'),
-            'create' => Pages\CreateSuggestedEdit::route('/create'),
-            'edit' => Pages\EditSuggestedEdit::route('/{record}/edit'),
         ];
     }
 }

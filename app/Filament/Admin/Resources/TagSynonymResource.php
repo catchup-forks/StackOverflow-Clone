@@ -32,8 +32,6 @@ class TagSynonymResource extends Resource
     {
         return [
             'index' => Pages\ListTagSynonyms::route('/'),
-            'create' => Pages\CreateTagSynonym::route('/create'),
-            'edit' => Pages\EditTagSynonym::route('/{record}/edit'),
         ];
     }
 }

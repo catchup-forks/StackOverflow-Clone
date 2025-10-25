@@ -32,8 +32,6 @@ class VoteResource extends Resource
     {
         return [
             'index' => Pages\ListVotes::route('/'),
-            'create' => Pages\CreateVote::route('/create'),
-            'edit' => Pages\EditVote::route('/{record}/edit'),
         ];
     }
 }

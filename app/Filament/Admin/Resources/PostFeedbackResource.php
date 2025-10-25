@@ -32,8 +32,6 @@ class PostFeedbackResource extends Resource
     {
         return [
             'index' => Pages\ListPostFeedback::route('/'),
-            'create' => Pages\CreatePostFeedback::route('/create'),
-            'edit' => Pages\EditPostFeedback::route('/{record}/edit'),
         ];
     }
 }

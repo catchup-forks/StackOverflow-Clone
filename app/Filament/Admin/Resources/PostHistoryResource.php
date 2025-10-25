@@ -32,8 +32,6 @@ class PostHistoryResource extends Resource
     {
         return [
             'index' => Pages\ListPostHistories::route('/'),
-            'create' => Pages\CreatePostHistory::route('/create'),
-            'edit' => Pages\EditPostHistory::route('/{record}/edit'),
         ];
     }
 }
