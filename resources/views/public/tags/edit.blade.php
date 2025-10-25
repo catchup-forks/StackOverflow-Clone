@@ -7,7 +7,7 @@
         <p class="text-sm text-slate-500">Adjust usage counts and metadata to keep this tag relevant.</p>
     </header>
 
-    <form action="{{ route('tag.update', ['tag' => $tag->id]) }}" method="POST" class="mt-8 space-y-6">
+    <form action="{{ route('tags.update', ['tag' => $tag->id]) }}" method="POST" class="mt-8 space-y-6">
         @csrf
         @method('PUT')
 
@@ -42,7 +42,7 @@
     <div class="space-y-4 text-sm text-slate-600">
         <h2 class="text-lg font-semibold text-slate-800">Why edit tags?</h2>
         <p>Keeping counts and references updated helps moderation tools stay accurate and keeps search results relevant.</p>
-        <form action="{{ route('tag.destroy', ['tag' => $tag->id]) }}" method="POST" class="mt-4 space-y-2">
+        <form action="{{ route('tags.destroy', ['tag' => $tag->id]) }}" method="POST" class="mt-4 space-y-2">
             @csrf
             @method('DELETE')
             <button type="submit" class="w-full rounded-full border border-rose-500 px-4 py-2 text-sm font-semibold text-rose-600 transition hover:bg-rose-500 hover:text-white">Delete tag</button>

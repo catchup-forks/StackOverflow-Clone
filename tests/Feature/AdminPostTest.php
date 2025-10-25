@@ -2,14 +2,17 @@
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\Admin\PostController;
 use App\Enums\PostType;
 use App\Models\Post;
 use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
+#[CoversClass(PostController::class)]
 class AdminPostTest extends TestCase
 {
     use RefreshDatabase;
@@ -43,5 +46,24 @@ class AdminPostTest extends TestCase
             'title' => 'Updated title',
             'is_blog' => true,
         ]);
+    }
+
+    #[Test]
+    public function it_forbids_non_admins_from_updating_a_post(): void
+    {
+        /** @Arrange */
+        $user = User::factory()->create();
+        $question = Post::factory()->create(['post_type_id' => PostType::Question->value]);
+        $tags = Tag::factory(2)->create();
+
+        /** @Act */
+        $response = $this->actingAs($user)->patch(route('admin.posts.update', $question), [
+            'title' => 'Updated title',
+            'body' => 'Updated body',
+            'tags' => $tags->pluck('id')->all(),
+        ]);
+
+        /** @Assert */
+        $response->assertForbidden();
     }
 }

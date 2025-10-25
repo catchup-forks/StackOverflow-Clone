@@ -1,8 +1,96 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+
+/* Required by all components */
+@import '../../vendor/filament/support/resources/css/index.css';
+
+/* Required by actions and tables */
+@import '../../vendor/filament/actions/resources/css/index.css';
+
+/* Required by actions, forms and tables */
+@import '../../vendor/filament/forms/resources/css/index.css';
+
+/* Required by actions and infolists */
+@import '../../vendor/filament/infolists/resources/css/index.css';
+
+/* Required by notifications */
+@import '../../vendor/filament/notifications/resources/css/index.css';
+
+/* Required by actions, infolists, forms, schemas and tables */
+@import '../../vendor/filament/schemas/resources/css/index.css';
+
+/* Required by tables */
+@import '../../vendor/filament/tables/resources/css/index.css';
+
+/* Required by widgets */
+@import '../../vendor/filament/widgets/resources/css/index.css';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+@source '../**/*.vue';
+
+@theme {
+    --font-sans: 'Montserrat', ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
+}
+
+:root {
+    color-scheme: light;
+    --color-background: #eceff4;
+    --color-surface: #ffffff;
+    --color-surface-alt: #e5e9f0;
+    --color-border: rgba(46, 52, 64, 0.08);
+    --color-text: #2e3440;
+    --color-text-muted: #4c566a;
+    --color-navbar: #5e81ac;
+    --color-navbar-text: #eceff4;
+    --color-accent: #5e81ac;
+    --color-accent-hover: #81a1c1;
+    --color-button: #5e81ac;
+    --color-button-hover: #4c566a;
+    --shadow-elevated: 0 12px 24px rgba(46, 52, 64, 0.1);
+}
+
+.dark {
+    color-scheme: dark;
+    --color-background: #2e3440;
+    --color-surface: #3b4252;
+    --color-surface-alt: #434c5e;
+    --color-border: rgba(236, 239, 244, 0.12);
+    --color-text: #eceff4;
+    --color-text-muted: #d8dee9;
+    --color-navbar: #3b4252;
+    --color-navbar-text: #eceff4;
+    --color-accent: #88c0d0;
+    --color-accent-hover: #8fbcbb;
+    --color-button: #88c0d0;
+    --color-button-hover: #81a1c1;
+    --shadow-elevated: 0 16px 30px rgba(0, 0, 0, 0.35);
+}
 
 @layer base {
+    html {
+        font-family: var(--font-sans);
+        background-color: var(--color-background);
+    }
+
     body {
-        @apply bg-slate-50 text-slate-900 antialiased;
+        min-height: 100vh;
+        color: var(--color-text);
+        transition: background-color 0.3s ease, color 0.3s ease;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    a {
+        color: inherit;
+    }
+
+    [x-cloak] {
+        display: none !important;
     }
 }
 
@@ -12,6 +100,76 @@
     }
 
     .card {
-        @apply rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-900/5;
+        @apply rounded-2xl p-6 shadow-sm transition-colors duration-300;
+        background-color: var(--color-surface);
+        color: inherit;
+        box-shadow: var(--shadow-elevated);
+        border: 1px solid var(--color-border);
+    }
+
+    .card-muted {
+        background-color: var(--color-surface-alt);
+    }
+
+    .navbar {
+        @apply transition-colors duration-300;
+        background-color: var(--color-navbar);
+        color: var(--color-navbar-text);
+    }
+
+    .navbar__inner {
+        @apply mx-auto flex max-w-6xl items-center justify-between px-4 py-4;
+    }
+
+    .navbar__brand {
+        @apply text-xl font-semibold;
+        color: var(--color-navbar-text);
+    }
+
+    .navbar__links {
+        @apply flex items-center gap-6 text-sm font-medium;
+    }
+
+    .navbar__link {
+        @apply transition-colors duration-200;
+        color: var(--color-navbar-text);
+    }
+
+    .navbar__link:hover {
+        color: var(--color-accent-hover);
+    }
+
+    .theme-toggle {
+        @apply inline-flex h-10 w-10 items-center justify-center rounded-full text-lg transition-colors duration-300;
+        background-color: var(--color-surface-alt);
+        color: var(--color-text);
+        box-shadow: var(--shadow-elevated);
+    }
+
+    .theme-toggle:hover {
+        background-color: var(--color-accent);
+        color: var(--color-navbar-text);
+    }
+
+    .pill-link {
+        @apply rounded-full px-4 py-2 text-sm font-semibold shadow-sm transition-colors duration-200;
+        background-color: var(--color-accent);
+        color: var(--color-navbar-text);
+    }
+
+    .pill-link:hover {
+        background-color: var(--color-accent-hover);
+    }
+
+    .cta-button {
+        @apply inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold shadow-lg transition-colors duration-200;
+        background-color: var(--color-button);
+        color: var(--color-navbar-text);
+    }
+
+    .cta-button:hover {
+        background-color: var(--color-button-hover);
     }
 }
+
+@variant dark (&:where(.dark, .dark *));

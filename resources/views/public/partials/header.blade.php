@@ -4,14 +4,14 @@
     </a>
     <div class="flex flex-1 flex-col gap-4">
         <nav class="flex flex-wrap gap-3">
-            <a href="/questions" class="rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400">Questions</a>
-            <a href="/tags" class="rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400">Tags</a>
-            <a href="/users" class="rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400">Users</a>
-            <a href="/badges" class="rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400">Badges</a>
-            <a href="/unanswered" class="rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-400">Unanswered</a>
+            <a href="/questions" class="pill-link">Questions</a>
+            <a href="/tags" class="pill-link">Tags</a>
+            <a href="/users" class="pill-link">Users</a>
+            <a href="/badges" class="pill-link">Badges</a>
+            <a href="/unanswered" class="pill-link">Unanswered</a>
         </nav>
         <div class="flex justify-end">
-            <a href="/ask" class="rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-slate-700">Ask a question</a>
+            <a href="/ask" class="cta-button">Ask a question</a>
         </div>
     </div>
 </div>
