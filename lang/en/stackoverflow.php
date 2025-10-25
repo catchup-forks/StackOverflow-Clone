@@ -37,6 +37,37 @@ return [
                 'delete' => 'Delete question',
                 'success' => 'Your question has been updated!',
             ],
+            'pages' => [
+                'list' => [
+                    'title' => 'Top Questions',
+                ],
+                'create' => [
+                    'eyebrow' => 'Ask Question',
+                    'title' => 'Post a new programming question',
+                    'intro' => 'Share all relevant details so the community can help quickly.',
+                    'sidebar' => [
+                        'title' => 'Writing great questions',
+                        'tips' => [
+                            'summary' => 'Summarise the problem in a single sentence.',
+                            'results' => 'Share the expected and actual results.',
+                            'tagging' => 'Tag the question so experts can find it faster.',
+                        ],
+                    ],
+                ],
+                'edit' => [
+                    'eyebrow' => 'Edit Question',
+                    'title' => 'Improve “:title”',
+                    'intro' => 'Update the details to keep the question accurate and helpful.',
+                    'sidebar' => [
+                        'title' => 'Editing reminders',
+                        'tips' => [
+                            'intent' => 'Keep the original intent of the question intact.',
+                            'clarity' => 'Clarify language and improve formatting for readability.',
+                            'tags' => 'Update tags so experts can continue to find the topic.',
+                        ],
+                    ],
+                ],
+            ],
         ],
     ],
     'admin' => [

@@ -2,9 +2,9 @@
 
 @section('content')
     <header class="space-y-2">
-        <p class="eyebrow">@lang('Ask Question')</p>
-        <h1 class="heading-primary">@lang('Post a new programming question')</h1>
-        <p class="text-sm text-muted">@lang('Share all relevant details so the community can help quickly.')</p>
+        <p class="eyebrow">{{ trans('stackoverflow.user.questions.pages.create.eyebrow') }}</p>
+        <h1 class="heading-primary">{{ trans('stackoverflow.user.questions.pages.create.title') }}</h1>
+        <p class="text-sm text-muted">{{ trans('stackoverflow.user.questions.pages.create.intro') }}</p>
     </header>
 
     <div class="mt-8 space-y-6">
@@ -15,11 +15,11 @@
 
 @section('side-menu')
     <div class="space-y-4 text-sm text-muted">
-        <h2 class="heading-secondary">@lang('Writing great questions')</h2>
+        <h2 class="heading-secondary">{{ trans('stackoverflow.user.questions.pages.create.sidebar.title') }}</h2>
         <ul class="list-disc space-y-2 pl-5">
-            <li>@lang('Summarise the problem in a single sentence.')</li>
-            <li>@lang('Share the expected and actual results.')</li>
-            <li>@lang('Tag the question so experts can find it faster.')</li>
+            <li>{{ trans('stackoverflow.user.questions.pages.create.sidebar.tips.summary') }}</li>
+            <li>{{ trans('stackoverflow.user.questions.pages.create.sidebar.tips.results') }}</li>
+            <li>{{ trans('stackoverflow.user.questions.pages.create.sidebar.tips.tagging') }}</li>
         </ul>
     </div>
 @endsection

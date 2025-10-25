@@ -127,12 +127,14 @@
     html {
         font-family: var(--font-sans);
         background-color: var(--color-background);
+        @apply bg-[var(--color-background)] dark:bg-[var(--color-background)];
     }
 
     body {
         min-height: 100vh;
         color: var(--color-text);
         background-color: var(--color-background);
+        @apply text-[var(--color-text)] dark:text-[var(--color-text)] dark:bg-[var(--color-background)];
         transition: background-color 0.3s ease, color 0.3s ease;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
@@ -187,7 +189,7 @@
     }
 
     .card {
-        @apply rounded-3xl p-6 transition-colors duration-300;
+        @apply rounded-3xl p-6 transition-colors duration-300 dark:bg-[var(--color-surface)] dark:border-[var(--color-border)] dark:text-[var(--color-text)];
         background-color: var(--color-surface);
         color: inherit;
         box-shadow: var(--shadow-elevated);
@@ -196,10 +198,11 @@
 
     .card-muted {
         background-color: var(--color-surface-alt);
+        @apply dark:bg-[var(--color-surface-alt)];
     }
 
     .navbar {
-        @apply transition-colors duration-300;
+        @apply transition-colors duration-300 dark:bg-[var(--color-navbar)] dark:text-[var(--color-navbar-text)];
         background-color: var(--color-navbar);
         color: var(--color-navbar-text);
         box-shadow: var(--shadow-elevated);
@@ -210,7 +213,7 @@
     }
 
     .navbar__brand {
-        @apply text-xl font-semibold;
+        @apply text-xl font-semibold dark:text-[var(--color-navbar-text)];
         color: var(--color-navbar-text);
     }
 
@@ -219,7 +222,7 @@
     }
 
     .navbar__link {
-        @apply transition-colors duration-200;
+        @apply transition-colors duration-200 dark:text-[var(--color-navbar-text)];
         color: var(--color-navbar-text);
     }
 
@@ -228,7 +231,7 @@
     }
 
     .theme-toggle {
-        @apply inline-flex h-11 w-11 items-center justify-center rounded-full text-lg transition-colors duration-300;
+        @apply inline-flex h-11 w-11 items-center justify-center rounded-full text-lg transition-colors duration-300 dark:bg-[var(--color-surface-alt)] dark:border-[var(--color-border)] dark:text-[var(--color-text)];
         background-color: var(--color-surface-alt);
         color: var(--color-text);
         border: 1px solid var(--color-border);
@@ -242,7 +245,7 @@
     }
 
     .cta-button {
-        @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold uppercase tracking-wide transition-all duration-200;
+        @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold uppercase tracking-wide transition-all duration-200 dark:bg-[var(--color-button)] dark:text-[var(--color-navbar-text)];
         background-color: var(--color-button);
         color: var(--color-navbar-text);
         box-shadow: var(--shadow-elevated);
@@ -259,6 +262,7 @@
         color: var(--color-button);
         border-color: var(--color-button);
         box-shadow: none;
+        @apply dark:text-[var(--color-button)] dark:border-[var(--color-button)];
     }
 
     .cta-button--outline:hover {
@@ -270,6 +274,7 @@
         background-color: var(--color-surface-alt);
         color: var(--color-text);
         box-shadow: none;
+        @apply dark:bg-[var(--color-surface-alt)] dark:text-[var(--color-text)];
     }
 
     .cta-button--subtle:hover {
@@ -281,6 +286,7 @@
         background-color: var(--color-danger);
         color: var(--color-danger-text);
         box-shadow: var(--shadow-elevated);
+        @apply dark:bg-[var(--color-danger)] dark:text-[var(--color-danger-text)];
     }
 
     .cta-button--danger:hover {
@@ -291,6 +297,7 @@
     .cta-button--outline.cta-button--danger {
         color: var(--color-danger);
         border-color: var(--color-danger-border);
+        @apply dark:text-[var(--color-danger)] dark:border-[var(--color-danger-border)];
     }
 
     .cta-button--outline.cta-button--danger:hover {
@@ -300,7 +307,7 @@
     }
 
     .tag-pill {
-        @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide transition-colors duration-200;
+        @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide transition-colors duration-200 dark:bg-[var(--color-tag-bg)] dark:text-[var(--color-tag-text)] dark:border-[var(--color-tag-border)];
         background-color: var(--color-tag-bg);
         color: var(--color-tag-text);
         border: 1px solid var(--color-tag-border);
@@ -318,27 +325,29 @@
 
     .text-muted {
         color: var(--color-text-muted);
+        @apply text-[var(--color-text-muted)] dark:text-[var(--color-text-muted)];
     }
 
     .eyebrow {
-        @apply text-xs font-semibold uppercase tracking-[0.45em];
+        @apply text-xs font-semibold uppercase tracking-[0.45em] dark:text-[var(--color-accent)];
         color: var(--color-accent);
         letter-spacing: 0.3em;
     }
 
     .heading-primary {
-        @apply text-3xl font-semibold;
+        @apply text-3xl font-semibold dark:text-[var(--color-text)];
         color: var(--color-text);
     }
 
     .heading-secondary {
-        @apply text-lg font-semibold;
+        @apply text-lg font-semibold dark:text-[var(--color-text)];
         color: var(--color-text);
     }
 
     .link-muted {
         color: var(--color-text-muted);
         transition: color 0.2s ease;
+        @apply text-[var(--color-text-muted)] dark:text-[var(--color-text-muted)];
     }
 
     .link-muted:hover {
@@ -346,7 +355,7 @@
     }
 
     .alert {
-        @apply rounded-2xl p-4 text-sm shadow-sm;
+        @apply rounded-2xl p-4 text-sm shadow-sm dark:bg-[var(--color-surface-alt)] dark:text-[var(--color-text)] dark:border-[var(--color-border)];
         border: 1px solid var(--color-border);
         background-color: var(--color-surface-alt);
         color: var(--color-text);
@@ -356,18 +365,21 @@
         background-color: var(--color-success-bg);
         border-color: var(--color-success-border);
         color: var(--color-success-text);
+        @apply dark:bg-[var(--color-success-bg)] dark:border-[var(--color-success-border)] dark:text-[var(--color-success-text)];
     }
 
     .alert--danger {
         background-color: var(--color-danger-bg);
         border-color: var(--color-danger-border);
         color: var(--color-danger-text);
+        @apply dark:bg-[var(--color-danger-bg)] dark:border-[var(--color-danger-border)] dark:text-[var(--color-danger-text)];
     }
 
     .alert--info {
         background-color: var(--color-info-bg);
         border-color: var(--color-info-border);
         color: var(--color-info-text);
+        @apply dark:bg-[var(--color-info-bg)] dark:border-[var(--color-info-border)] dark:text-[var(--color-info-text)];
     }
 
     .answer-accepted {
@@ -375,10 +387,11 @@
         background-color: var(--color-success-bg);
         color: var(--color-success-text);
         box-shadow: var(--shadow-elevated);
+        @apply dark:bg-[var(--color-success-bg)] dark:border-[var(--color-success-border)] dark:text-[var(--color-success-text)];
     }
 
     .form-field {
-        @apply w-full rounded-2xl border p-3 text-sm transition-colors duration-200;
+        @apply w-full rounded-2xl border p-3 text-sm transition-colors duration-200 dark:bg-[var(--color-surface)] dark:border-[var(--color-border)] dark:text-[var(--color-text)];
         border-color: var(--color-border);
         background-color: var(--color-surface);
         color: var(--color-text);
@@ -404,11 +417,13 @@
         border-radius: 1.5rem;
         overflow: hidden;
         box-shadow: var(--shadow-elevated);
+        @apply dark:bg-[var(--color-surface)] dark:text-[var(--color-text)];
     }
 
     .table-nord thead {
         background-color: var(--color-surface-alt);
         color: var(--color-text-muted);
+        @apply dark:bg-[var(--color-surface-alt)] dark:text-[var(--color-text-muted)];
     }
 
     .table-nord th,
@@ -419,6 +434,7 @@
 
     .table-nord tbody tr:hover {
         background-color: var(--color-surface-alt);
+        @apply dark:bg-[var(--color-surface-alt)];
     }
 }
 
