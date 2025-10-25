@@ -18,32 +18,32 @@ class SuggestedEditTable
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('title')
-                    ->label(__('Title'))
+                    ->label(trans('stackoverflow.admin.suggested_edit.table.title'))
                     ->limit(60)
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('post.title')
-                    ->label(__('Post'))
+                    ->label(trans('stackoverflow.admin.suggested_edit.table.post'))
                     ->limit(50)
                     ->searchable(),
                 TextColumn::make('owner.display_name')
-                    ->label(__('Suggested by'))
+                    ->label(trans('stackoverflow.admin.suggested_edit.table.suggested_by'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('creation_date')
-                    ->label(__('Created'))
+                    ->label(trans('stackoverflow.admin.suggested_edit.table.created'))
                     ->dateTime()
                     ->sortable(),
                 IconColumn::make('approval_date')
-                    ->label(__('Approved'))
+                    ->label(trans('stackoverflow.admin.suggested_edit.table.approved'))
                     ->boolean(fn ($record) => ! empty($record->approval_date)),
                 IconColumn::make('rejection_date')
-                    ->label(__('Rejected'))
+                    ->label(trans('stackoverflow.admin.suggested_edit.table.rejected'))
                     ->boolean(fn ($record) => ! empty($record->rejection_date)),
             ])
             ->filters([
                 Filter::make('pending')
-                    ->label(__('Pending review'))
+                    ->label(trans('stackoverflow.admin.suggested_edit.table.pending_review'))
                     ->query(fn ($query) => $query->whereNull('approval_date')->whereNull('rejection_date')),
             ])
             ->actions([

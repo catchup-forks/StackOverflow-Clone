@@ -15,21 +15,21 @@ class BadgeForm
     public static function schema(): array
     {
         return [
-            Section::make(__('Badge details'))
+            Section::make(trans('stackoverflow.admin.badge.form.section'))
                 ->columns(2)
                 ->schema([
                     TextInput::make('name')
-                        ->label(__('Name'))
+                        ->label(trans('stackoverflow.admin.badge.form.name'))
                         ->required()
                         ->maxLength(50),
                     Select::make('user_id')
-                        ->label(__('Recipient'))
+                        ->label(trans('stackoverflow.admin.badge.form.recipient'))
                         ->relationship('user', 'display_name')
                         ->searchable()
                         ->preload()
                         ->required(),
                     DateTimePicker::make('date')
-                        ->label(__('Awarded at'))
+                        ->label(trans('stackoverflow.admin.badge.form.awarded_at'))
                         ->seconds(false)
                         ->native(false)
                         ->required(),

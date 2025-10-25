@@ -18,13 +18,13 @@ class EditQuestion extends EditRecord
     {
         return [
             Actions\DeleteAction::make()
-                ->label(__('Delete question')),
+                ->label(trans('stackoverflow.user.questions.edit.delete')),
         ];
     }
 
     protected function getSavedNotificationTitle(): ?string
     {
-        return __('Your question has been updated!');
+        return trans('stackoverflow.user.questions.edit.success');
     }
 
     protected function mutateFormDataBeforeSave(array $data): array

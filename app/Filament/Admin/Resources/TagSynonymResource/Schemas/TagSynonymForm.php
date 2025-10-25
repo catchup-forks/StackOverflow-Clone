@@ -15,46 +15,46 @@ class TagSynonymForm
     public static function schema(): array
     {
         return [
-            Section::make(__('Synonym details'))
+            Section::make(trans('stackoverflow.admin.tag_synonym.form.section'))
                 ->columns(2)
                 ->schema([
                     TextInput::make('source_tag_name')
-                        ->label(__('Source tag'))
+                        ->label(trans('stackoverflow.admin.tag_synonym.form.source_tag'))
                         ->required()
                         ->maxLength(25),
                     TextInput::make('target_tag_name')
-                        ->label(__('Target tag'))
+                        ->label(trans('stackoverflow.admin.tag_synonym.form.target_tag'))
                         ->required()
                         ->maxLength(25),
                     Select::make('user_id')
-                        ->label(__('Created by'))
+                        ->label(trans('stackoverflow.admin.tag_synonym.form.created_by'))
                         ->relationship('creator', 'display_name')
                         ->searchable()
                         ->preload(),
                     DateTimePicker::make('creation_date')
-                        ->label(__('Created at'))
+                        ->label(trans('stackoverflow.admin.tag_synonym.form.created_at'))
                         ->seconds(false)
                         ->native(false),
                     TextInput::make('auto_rename_count')
-                        ->label(__('Auto rename count'))
+                        ->label(trans('stackoverflow.admin.tag_synonym.form.auto_rename_count'))
                         ->numeric()
                         ->default(0),
                     DateTimePicker::make('last_auto_rename')
-                        ->label(__('Last auto rename'))
+                        ->label(trans('stackoverflow.admin.tag_synonym.form.last_auto_rename'))
                         ->seconds(false)
                         ->native(false),
                     TextInput::make('score')
-                        ->label(__('Score'))
+                        ->label(trans('stackoverflow.admin.tag_synonym.form.score'))
                         ->numeric()
                         ->default(0),
                     Select::make('approved_by_user_id')
-                        ->label(__('Approved by'))
+                        ->label(trans('stackoverflow.admin.tag_synonym.form.approved_by'))
                         ->relationship('approvedBy', 'display_name')
                         ->searchable()
                         ->preload()
-                        ->nullOption(__('Pending approval')),
+                        ->nullOption(trans('stackoverflow.admin.tag_synonym.form.pending_approval')),
                     DateTimePicker::make('approval_date')
-                        ->label(__('Approval date'))
+                        ->label(trans('stackoverflow.admin.tag_synonym.form.approval_date'))
                         ->seconds(false)
                         ->native(false),
                 ]),

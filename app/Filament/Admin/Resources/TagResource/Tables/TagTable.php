@@ -17,24 +17,24 @@ class TagTable
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('name')
-                    ->label(__('Name'))
+                    ->label(trans('stackoverflow.admin.tag.table.name'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('count')
-                    ->label(__('Usage count'))
+                    ->label(trans('stackoverflow.admin.tag.table.usage_count'))
                     ->sortable(),
                 TextColumn::make('excerptPost.title')
-                    ->label(__('Excerpt post'))
+                    ->label(trans('stackoverflow.admin.tag.table.excerpt_post'))
                     ->limit(40)
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('wikiPost.title')
-                    ->label(__('Wiki post'))
+                    ->label(trans('stackoverflow.admin.tag.table.wiki_post'))
                     ->limit(40)
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Filter::make('popular')
-                    ->label(__('Popular (count ≥ 1000)'))
+                    ->label(trans('stackoverflow.admin.tag.table.popular_filter'))
                     ->query(fn ($query) => $query->where('count', '>=', 1000)),
             ])
             ->actions([

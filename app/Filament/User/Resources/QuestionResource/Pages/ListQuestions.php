@@ -17,7 +17,7 @@ class ListQuestions extends ListRecords
     {
         return [
             Actions\CreateAction::make()
-                ->label(__('Ask Question'))
+                ->label(trans('stackoverflow.user.questions.list.ask_question'))
                 ->url(fn () => static::getResource()::getUrl('create')),
         ];
     }

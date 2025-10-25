@@ -18,29 +18,33 @@ class VoteTable
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('post.title')
-                    ->label(__('Post'))
+                    ->label(trans('stackoverflow.admin.vote.table.post'))
                     ->limit(50)
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('user.display_name')
-                    ->label(__('User'))
+                    ->label(trans('stackoverflow.admin.vote.table.user'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('vote_type_id')
-                    ->label(__('Type'))
-                    ->formatStateUsing(fn ($state) => optional(VoteType::tryFrom((int) $state))->name)
+                    ->label(trans('stackoverflow.admin.vote.table.type'))
+                    ->formatStateUsing(function ($state) {
+                        $type = VoteType::tryFrom((int) $state) ?? VoteType::Unknown;
+
+                        return trans('stackoverflow.vote_types.' . $type->name);
+                    })
                     ->sortable(),
                 TextColumn::make('bounty_amount')
-                    ->label(__('Bounty'))
+                    ->label(trans('stackoverflow.admin.vote.table.bounty'))
                     ->sortable(),
                 TextColumn::make('creation_date')
-                    ->label(__('Cast at'))
+                    ->label(trans('stackoverflow.admin.vote.table.cast_at'))
                     ->dateTime()
                     ->sortable(),
             ])
             ->filters([
                 Filter::make('bounty')
-                    ->label(__('Has bounty'))
+                    ->label(trans('stackoverflow.admin.vote.table.has_bounty'))
                     ->query(fn ($query) => $query->where('bounty_amount', '>', 0)),
             ])
             ->actions([

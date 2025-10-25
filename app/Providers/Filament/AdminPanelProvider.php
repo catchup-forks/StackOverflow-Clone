@@ -29,7 +29,7 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\\Filament\\Admin\\Widgets')
             ->brandName(config('app.name') . ' Admin')
             ->userMenuItems([
-                MenuItem::make()->label(__('filament-panels::layout.actions.logout.label'))
+                MenuItem::make()->label(trans('filament-panels::layout.actions.logout.label'))
                     ->url(fn () => Filament::getLogoutUrl()),
             ]);
     }

@@ -20,9 +20,19 @@ class QuestionResource extends Resource
 
     protected static ?string $slug = 'questions';
 
-    protected static ?string $label = 'Question';
+    protected static ?string $label = null;
 
-    protected static ?string $pluralLabel = 'Questions';
+    protected static ?string $pluralLabel = null;
+
+    public static function getLabel(): ?string
+    {
+        return trans('stackoverflow.user.questions.label');
+    }
+
+    public static function getPluralLabel(): ?string
+    {
+        return trans('stackoverflow.user.questions.plural_label');
+    }
 
     public static function form(Form $form): Form
     {

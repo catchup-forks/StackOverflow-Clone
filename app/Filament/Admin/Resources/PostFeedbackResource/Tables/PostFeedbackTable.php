@@ -18,24 +18,24 @@ class PostFeedbackTable
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('post.title')
-                    ->label(__('Post'))
+                    ->label(trans('stackoverflow.admin.post_feedback.table.post'))
                     ->limit(50)
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('vote_type_id')
-                    ->label(__('Vote type'))
+                    ->label(trans('stackoverflow.admin.post_feedback.table.vote_type'))
                     ->sortable(),
                 IconColumn::make('is_anonymous')
-                    ->label(__('Anonymous'))
+                    ->label(trans('stackoverflow.admin.post_feedback.table.anonymous'))
                     ->boolean(),
                 TextColumn::make('creation_date')
-                    ->label(__('Created at'))
+                    ->label(trans('stackoverflow.admin.post_feedback.table.created_at'))
                     ->dateTime()
                     ->sortable(),
             ])
             ->filters([
                 Filter::make('anonymous')
-                    ->label(__('Anonymous only'))
+                    ->label(trans('stackoverflow.admin.post_feedback.table.anonymous_only'))
                     ->query(fn ($query) => $query->where('is_anonymous', true)),
             ])
             ->actions([

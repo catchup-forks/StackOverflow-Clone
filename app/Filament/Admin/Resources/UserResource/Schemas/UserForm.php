@@ -15,31 +15,31 @@ class UserForm
     public static function schema(): array
     {
         return [
-            Section::make(__('Profile details'))
+            Section::make(trans('stackoverflow.admin.user.form.profile_section'))
                 ->columns(2)
                 ->schema([
                     TextInput::make('display_name')
-                        ->label(__('Display name'))
+                        ->label(trans('stackoverflow.admin.user.form.display_name'))
                         ->required()
                         ->maxLength(40),
                     TextInput::make('email')
                         ->email()
-                        ->label(__('Email'))
+                        ->label(trans('stackoverflow.admin.user.form.email'))
                         ->maxLength(160),
                     TextInput::make('website_url')
-                        ->label(__('Website'))
+                        ->label(trans('stackoverflow.admin.user.form.website'))
                         ->url()
                         ->maxLength(200),
                     TextInput::make('location')
-                        ->label(__('Location'))
+                        ->label(trans('stackoverflow.admin.user.form.location'))
                         ->maxLength(100),
                     TiptapEditor::make('about_me')
-                        ->label(__('About'))
+                        ->label(trans('stackoverflow.admin.user.form.about'))
                         ->profile('default')
                         ->output('html')
                         ->columnSpanFull(),
                 ]),
-            Section::make(__('Reputation'))
+            Section::make(trans('stackoverflow.admin.user.form.reputation_section'))
                 ->columns(2)
                 ->schema([
                     TextInput::make('reputation')
@@ -59,15 +59,15 @@ class UserForm
                         ->minValue(0)
                         ->maxValue(150),
                 ]),
-            Section::make(__('Activity'))
+            Section::make(trans('stackoverflow.admin.user.form.activity_section'))
                 ->columns(2)
                 ->schema([
                     DateTimePicker::make('creation_date')
-                        ->label(__('Joined'))
+                        ->label(trans('stackoverflow.admin.user.form.joined'))
                         ->seconds(false)
                         ->native(false),
                     DateTimePicker::make('last_access_date')
-                        ->label(__('Last seen'))
+                        ->label(trans('stackoverflow.admin.user.form.last_seen'))
                         ->seconds(false)
                         ->native(false),
                 ]),

@@ -18,30 +18,30 @@ class TagSynonymTable
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('source_tag_name')
-                    ->label(__('Source tag'))
+                    ->label(trans('stackoverflow.admin.tag_synonym.table.source_tag'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('target_tag_name')
-                    ->label(__('Target tag'))
+                    ->label(trans('stackoverflow.admin.tag_synonym.table.target_tag'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('creator.display_name')
-                    ->label(__('Requested by'))
+                    ->label(trans('stackoverflow.admin.tag_synonym.table.requested_by'))
                     ->searchable()
                     ->toggleable(),
                 IconColumn::make('approval_date')
-                    ->label(__('Approved'))
+                    ->label(trans('stackoverflow.admin.tag_synonym.table.approved'))
                     ->boolean(fn ($record) => ! empty($record->approval_date)),
                 TextColumn::make('auto_rename_count')
-                    ->label(__('Auto renames'))
+                    ->label(trans('stackoverflow.admin.tag_synonym.table.auto_renames'))
                     ->sortable(),
                 TextColumn::make('score')
-                    ->label(__('Score'))
+                    ->label(trans('stackoverflow.admin.tag_synonym.table.score'))
                     ->sortable(),
             ])
             ->filters([
                 Filter::make('pending')
-                    ->label(__('Pending approval'))
+                    ->label(trans('stackoverflow.admin.tag_synonym.table.pending_approval'))
                     ->query(fn ($query) => $query->whereNull('approval_date')),
             ])
             ->actions([

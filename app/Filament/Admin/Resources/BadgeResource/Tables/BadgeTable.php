@@ -17,21 +17,21 @@ class BadgeTable
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('name')
-                    ->label(__('Badge'))
+                    ->label(trans('stackoverflow.admin.badge.table.badge'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('user.display_name')
-                    ->label(__('User'))
+                    ->label(trans('stackoverflow.admin.badge.table.user'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('date')
-                    ->label(__('Awarded'))
+                    ->label(trans('stackoverflow.admin.badge.table.awarded'))
                     ->dateTime()
                     ->sortable(),
             ])
             ->filters([
                 Filter::make('recent')
-                    ->label(__('Awarded this month'))
+                    ->label(trans('stackoverflow.admin.badge.table.awarded_this_month'))
                     ->query(fn ($query) => $query->where('date', '>=', now()->startOfMonth())),
             ])
             ->actions([

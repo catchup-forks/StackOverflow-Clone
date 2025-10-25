@@ -18,31 +18,31 @@ class CommentTable
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('post.title')
-                    ->label(__('Post'))
+                    ->label(trans('stackoverflow.admin.comment.table.post'))
                     ->searchable()
                     ->sortable()
                     ->limit(60),
                 TextColumn::make('user.display_name')
-                    ->label(__('Author'))
+                    ->label(trans('stackoverflow.admin.comment.table.author'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('score')
-                    ->label(__('Score'))
+                    ->label(trans('stackoverflow.admin.comment.table.score'))
                     ->sortable(),
                 IconColumn::make('requires_admin_review')
-                    ->label(__('Needs review'))
+                    ->label(trans('stackoverflow.admin.comment.table.needs_review'))
                     ->boolean(),
                 TextColumn::make('creation_date')
-                    ->label(__('Created'))
+                    ->label(trans('stackoverflow.admin.comment.table.created'))
                     ->dateTime()
                     ->sortable(),
             ])
             ->filters([
                 Filter::make('requires_review')
-                    ->label(__('Requires review'))
+                    ->label(trans('stackoverflow.admin.comment.table.requires_review'))
                     ->query(fn ($query) => $query->where('requires_admin_review', true)),
                 Filter::make('flagged_recently')
-                    ->label(__('Created in last 7 days'))
+                    ->label(trans('stackoverflow.admin.comment.table.created_last_seven_days'))
                     ->query(fn ($query) => $query->where('creation_date', '>=', now()->subDays(7))),
             ])
             ->actions([

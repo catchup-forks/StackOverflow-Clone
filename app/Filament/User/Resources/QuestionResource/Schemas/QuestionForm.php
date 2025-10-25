@@ -24,23 +24,23 @@ class QuestionForm
                 ->default(fn () => Auth::id()),
             Hidden::make('creation_date')
                 ->default(fn () => now()),
-            Section::make(__('Ask a question'))
+            Section::make(trans('stackoverflow.user.questions.form.section'))
                 ->icon('heroicon-o-question-mark-circle')
                 ->schema([
                     TextInput::make('title')
-                        ->label(__('Title'))
-                        ->placeholder(__('What do you want to know?'))
+                        ->label(trans('stackoverflow.user.questions.form.title'))
+                        ->placeholder(trans('stackoverflow.user.questions.form.title_placeholder'))
                         ->required()
                         ->maxLength(250),
                     TiptapEditor::make('body')
-                        ->label(__('Details'))
+                        ->label(trans('stackoverflow.user.questions.form.details'))
                         ->required()
                         ->profile('default')
                         ->output('markdown')
                         ->columnSpanFull(),
                     TagsInput::make('tags')
-                        ->label(__('Tags'))
-                        ->helperText(__('Press enter after each tag (markdown supported).'))
+                        ->label(trans('stackoverflow.user.questions.form.tags'))
+                        ->helperText(trans('stackoverflow.user.questions.form.tags_helper'))
                         ->separator(',')
                         ->suggestions(fn () => \App\Models\Tag::query()->orderByDesc('count')->limit(20)->pluck('name')->all())
                         ->afterStateHydrated(fn (TagsInput $component, $state) => $component->state(
@@ -57,7 +57,7 @@ class QuestionForm
                             ->unique()
                             ->values()
                             ->all())
-                        ->placeholder(__('Add relevant tags')),
+                        ->placeholder(trans('stackoverflow.user.questions.form.tags_placeholder')),
                 ]),
         ];
     }

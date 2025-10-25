@@ -16,31 +16,35 @@ class VoteForm
     public static function schema(): array
     {
         return [
-            Section::make(__('Vote details'))
+            Section::make(trans('stackoverflow.admin.vote.form.section'))
                 ->columns(2)
                 ->schema([
                     Select::make('post_id')
-                        ->label(__('Post'))
+                        ->label(trans('stackoverflow.admin.vote.form.post'))
                         ->relationship('post', 'title')
                         ->searchable()
                         ->preload()
                         ->required(),
                     Select::make('user_id')
-                        ->label(__('User'))
+                        ->label(trans('stackoverflow.admin.vote.form.user'))
                         ->relationship('user', 'display_name')
                         ->searchable()
                         ->preload()
                         ->required(),
                     Select::make('vote_type_id')
-                        ->label(__('Type'))
-                        ->options(collect(VoteType::cases())->mapWithKeys(fn (VoteType $type) => [$type->value => __($type->name)]))
+                        ->label(trans('stackoverflow.admin.vote.form.type'))
+                        ->options(collect(VoteType::cases())->mapWithKeys(
+                            fn (VoteType $type) => [
+                                $type->value => trans('stackoverflow.vote_types.' . $type->name),
+                            ]
+                        ))
                         ->required(),
                     TextInput::make('bounty_amount')
-                        ->label(__('Bounty amount'))
+                        ->label(trans('stackoverflow.admin.vote.form.bounty_amount'))
                         ->numeric()
                         ->default(0),
                     DateTimePicker::make('creation_date')
-                        ->label(__('Cast at'))
+                        ->label(trans('stackoverflow.admin.vote.form.cast_at'))
                         ->seconds(false)
                         ->native(false)
                         ->required(),

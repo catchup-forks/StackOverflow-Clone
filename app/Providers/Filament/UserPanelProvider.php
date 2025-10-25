@@ -32,7 +32,7 @@ class UserPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/User/Widgets'), for: 'App\\Filament\\User\\Widgets')
             ->viteTheme('resources/css/app.css')
             ->userMenuItems([
-                MenuItem::make()->label(__('filament-panels::layout.actions.logout.label'))
+                MenuItem::make()->label(trans('filament-panels::layout.actions.logout.label'))
                     ->url(fn () => Filament::getLogoutUrl()),
             ]);
     }

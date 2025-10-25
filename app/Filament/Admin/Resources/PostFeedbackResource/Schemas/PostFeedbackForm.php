@@ -16,23 +16,23 @@ class PostFeedbackForm
     public static function schema(): array
     {
         return [
-            Section::make(__('Feedback details'))
+            Section::make(trans('stackoverflow.admin.post_feedback.form.section'))
                 ->columns(2)
                 ->schema([
                     Select::make('post_id')
-                        ->label(__('Post'))
+                        ->label(trans('stackoverflow.admin.post_feedback.form.post'))
                         ->relationship('post', 'title')
                         ->searchable()
                         ->preload()
                         ->required(),
                     Toggle::make('is_anonymous')
-                        ->label(__('Anonymous')),
+                        ->label(trans('stackoverflow.admin.post_feedback.form.anonymous')),
                     TextInput::make('vote_type_id')
-                        ->label(__('Vote type ID'))
+                        ->label(trans('stackoverflow.admin.post_feedback.form.vote_type_id'))
                         ->numeric()
                         ->required(),
                     DateTimePicker::make('creation_date')
-                        ->label(__('Created at'))
+                        ->label(trans('stackoverflow.admin.post_feedback.form.created_at'))
                         ->seconds(false)
                         ->native(false)
                         ->required(),

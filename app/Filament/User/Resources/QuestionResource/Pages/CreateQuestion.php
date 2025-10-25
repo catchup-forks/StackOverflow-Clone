@@ -32,7 +32,7 @@ class CreateQuestion extends CreateRecord
 
     protected function getCreatedNotificationTitle(): ?string
     {
-        return __('Your question has been published!');
+        return trans('stackoverflow.user.questions.create.success');
     }
 
     protected function getRedirectUrl(): string

@@ -17,44 +17,48 @@ class PostHistoryForm
     public static function schema(): array
     {
         return [
-            Section::make(__('History details'))
+            Section::make(trans('stackoverflow.admin.post_history.form.section'))
                 ->columns(2)
                 ->schema([
                     Select::make('post_id')
-                        ->label(__('Post'))
+                        ->label(trans('stackoverflow.admin.post_history.form.post'))
                         ->relationship('post', 'title')
                         ->searchable()
                         ->preload()
                         ->required(),
                     Select::make('user_id')
-                        ->label(__('User'))
+                        ->label(trans('stackoverflow.admin.post_history.form.user'))
                         ->relationship('user', 'display_name')
                         ->searchable()
                         ->preload()
                         ->required(),
                     Select::make('post_history_type_id')
-                        ->label(__('Type'))
-                        ->options(collect(PostHistoryType::cases())->mapWithKeys(fn (PostHistoryType $type) => [$type->value => __($type->name)]))
+                        ->label(trans('stackoverflow.admin.post_history.form.type'))
+                        ->options(collect(PostHistoryType::cases())->mapWithKeys(
+                            fn (PostHistoryType $type) => [
+                                $type->value => trans('stackoverflow.post_history_types.' . $type->name),
+                            ]
+                        ))
                         ->required(),
                     TextInput::make('revision_GUID')
-                        ->label(__('Revision GUID'))
+                        ->label(trans('stackoverflow.admin.post_history.form.revision_guid'))
                         ->numeric()
                         ->required(),
                     DateTimePicker::make('on_date')
-                        ->label(__('Occurred at'))
+                        ->label(trans('stackoverflow.admin.post_history.form.occurred_at'))
                         ->seconds(false)
                         ->native(false)
                         ->required(),
                     TextInput::make('user_display_name')
-                        ->label(__('User display name'))
+                        ->label(trans('stackoverflow.admin.post_history.form.user_display_name'))
                         ->maxLength(40),
                     TiptapEditor::make('comment')
-                        ->label(__('Comment'))
+                        ->label(trans('stackoverflow.admin.post_history.form.comment'))
                         ->profile('default')
                         ->output('html')
                         ->columnSpanFull(),
                     TiptapEditor::make('body')
-                        ->label(__('Body'))
+                        ->label(trans('stackoverflow.admin.post_history.form.body'))
                         ->profile('default')
                         ->output('html')
                         ->columnSpanFull(),

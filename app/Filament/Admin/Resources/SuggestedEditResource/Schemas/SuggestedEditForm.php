@@ -17,27 +17,27 @@ class SuggestedEditForm
     public static function schema(): array
     {
         return [
-            Section::make(__('Edit details'))
+            Section::make(trans('stackoverflow.admin.suggested_edit.form.section'))
                 ->columns(2)
                 ->schema([
                     Select::make('post_id')
-                        ->label(__('Post'))
+                        ->label(trans('stackoverflow.admin.suggested_edit.form.post'))
                         ->relationship('post', 'title')
                         ->searchable()
                         ->preload()
                         ->required(),
                     Select::make('owner_user_id')
-                        ->label(__('Suggested by'))
+                        ->label(trans('stackoverflow.admin.suggested_edit.form.suggested_by'))
                         ->relationship('owner', 'display_name')
                         ->searchable()
                         ->preload()
                         ->required(),
                     TextInput::make('title')
-                        ->label(__('Title'))
+                        ->label(trans('stackoverflow.admin.suggested_edit.form.title'))
                         ->maxLength(250)
                         ->columnSpanFull(),
                     TagsInput::make('tags')
-                        ->label(__('Tags'))
+                        ->label(trans('stackoverflow.admin.suggested_edit.form.tags'))
                         ->separator(',')
                         ->suggestions(fn () => \App\Models\Tag::query()->orderByDesc('count')->limit(20)->pluck('name')->all())
                         ->afterStateHydrated(fn (TagsInput $component, $state) => $component->state(
@@ -56,34 +56,34 @@ class SuggestedEditForm
                             ->all())
                         ->columnSpanFull(),
                     TiptapEditor::make('body')
-                        ->label(__('Body'))
+                        ->label(trans('stackoverflow.admin.suggested_edit.form.body'))
                         ->profile('default')
                         ->output('html')
                         ->columnSpanFull(),
                     TiptapEditor::make('comment')
-                        ->label(__('Comment'))
+                        ->label(trans('stackoverflow.admin.suggested_edit.form.comment'))
                         ->profile('default')
                         ->output('html')
                         ->columnSpanFull(),
                 ]),
-            Section::make(__('Review timeline'))
+            Section::make(trans('stackoverflow.admin.suggested_edit.form.timeline_section'))
                 ->columns(3)
                 ->schema([
                     DateTimePicker::make('creation_date')
-                        ->label(__('Created'))
+                        ->label(trans('stackoverflow.admin.suggested_edit.form.created'))
                         ->seconds(false)
                         ->native(false)
                         ->required(),
                     DateTimePicker::make('approval_date')
-                        ->label(__('Approved'))
+                        ->label(trans('stackoverflow.admin.suggested_edit.form.approved'))
                         ->seconds(false)
                         ->native(false),
                     DateTimePicker::make('rejection_date')
-                        ->label(__('Rejected'))
+                        ->label(trans('stackoverflow.admin.suggested_edit.form.rejected'))
                         ->seconds(false)
                         ->native(false),
                     TextInput::make('revision_GUID')
-                        ->label(__('Revision GUID'))
+                        ->label(trans('stackoverflow.admin.suggested_edit.form.revision_guid'))
                         ->numeric(),
                 ]),
         ];

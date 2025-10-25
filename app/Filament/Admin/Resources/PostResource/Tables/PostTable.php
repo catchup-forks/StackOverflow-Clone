@@ -23,34 +23,34 @@ class PostTable
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('title')
-                    ->label(__('Title'))
+                    ->label(trans('stackoverflow.admin.post.table.title'))
                     ->sortable()
                     ->searchable()
                     ->limit(60),
                 TextColumn::make('user.display_name')
-                    ->label(__('Author'))
+                    ->label(trans('stackoverflow.admin.post.table.author'))
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('score')
-                    ->label(__('Score'))
+                    ->label(trans('stackoverflow.admin.post.table.score'))
                     ->sortable(),
                 TextColumn::make('view_count')
-                    ->label(__('Views'))
+                    ->label(trans('stackoverflow.admin.post.table.views'))
                     ->sortable(),
                 TextColumn::make('creation_date')
-                    ->label(__('Created at'))
+                    ->label(trans('stackoverflow.admin.post.table.created_at'))
                     ->dateTime()
                     ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('post_type_id')
-                    ->label(__('Type'))
+                    ->label(trans('stackoverflow.admin.post.table.type'))
                     ->options([
-                        1 => __('Question'),
-                        2 => __('Answer'),
+                        1 => trans('stackoverflow.admin.post.table.question'),
+                        2 => trans('stackoverflow.admin.post.table.answer'),
                     ]),
                 Filter::make('is_blog')
-                    ->label(__('Blog posts'))
+                    ->label(trans('stackoverflow.admin.post.table.blog_posts'))
                     ->query(fn ($query) => $query->where('is_blog', true)),
             ])
             ->actions([

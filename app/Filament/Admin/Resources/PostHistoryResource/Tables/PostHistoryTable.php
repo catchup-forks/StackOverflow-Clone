@@ -18,26 +18,30 @@ class PostHistoryTable
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('post.title')
-                    ->label(__('Post'))
+                    ->label(trans('stackoverflow.admin.post_history.table.post'))
                     ->limit(50)
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('post_history_type_id')
-                    ->label(__('Type'))
-                    ->formatStateUsing(fn ($state) => optional(PostHistoryType::tryFrom((int) $state))->name)
+                    ->label(trans('stackoverflow.admin.post_history.table.type'))
+                    ->formatStateUsing(function ($state) {
+                        $type = PostHistoryType::tryFrom((int) $state) ?? PostHistoryType::Unknown;
+
+                        return trans('stackoverflow.post_history_types.' . $type->name);
+                    })
                     ->badge(),
                 TextColumn::make('user.display_name')
-                    ->label(__('User'))
+                    ->label(trans('stackoverflow.admin.post_history.table.user'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('on_date')
-                    ->label(__('Occurred at'))
+                    ->label(trans('stackoverflow.admin.post_history.table.occurred_at'))
                     ->dateTime()
                     ->sortable(),
             ])
             ->filters([
                 Filter::make('last_7_days')
-                    ->label(__('Last 7 days'))
+                    ->label(trans('stackoverflow.admin.post_history.table.last_seven_days'))
                     ->query(fn ($query) => $query->where('on_date', '>=', now()->subDays(7))),
             ])
             ->actions([

@@ -17,18 +17,23 @@ class PostResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected static ?string $navigationLabel = 'Posts';
+    protected static ?string $navigationLabel = null;
 
     protected static ?string $navigationGroup = 'Content';
 
     public static function getModelLabel(): string
     {
-        return __('Post');
+        return trans('stackoverflow.admin.post.label');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('Posts');
+        return trans('stackoverflow.admin.post.plural_label');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return trans('stackoverflow.admin.post.plural_label');
     }
 
     public static function form(Form $form): Form

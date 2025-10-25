@@ -12,30 +12,30 @@ class QuestionTable
         return $table
             ->columns([
                 TextColumn::make('title')
-                    ->label(__('Question'))
+                    ->label(trans('stackoverflow.user.questions.table.question'))
                     ->searchable()
                     ->sortable()
                     ->limit(80),
                 TextColumn::make('user.display_name')
-                    ->label(__('Asked by'))
+                    ->label(trans('stackoverflow.user.questions.table.asked_by'))
                     ->sortable(),
                 TextColumn::make('score')
-                    ->label(__('Score'))
+                    ->label(trans('stackoverflow.user.questions.table.score'))
                     ->sortable(),
                 TextColumn::make('answer_count')
-                    ->label(__('Answers'))
+                    ->label(trans('stackoverflow.user.questions.table.answers'))
                     ->sortable(),
                 TextColumn::make('creation_date')
-                    ->label(__('Asked'))
+                    ->label(trans('stackoverflow.user.questions.table.asked'))
                     ->dateTime()
                     ->sortable(),
             ])
             ->filters([])
             ->actions([
                 Tables\Actions\ViewAction::make()
-                    ->label(__('View')),
+                    ->label(trans('stackoverflow.user.questions.table.view')),
                 Tables\Actions\EditAction::make()
-                    ->label(__('Improve')),
+                    ->label(trans('stackoverflow.user.questions.table.improve')),
             ])
             ->bulkActions([]);
     }
