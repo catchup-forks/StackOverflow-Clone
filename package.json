@@ -12,5 +12,8 @@
         "postcss": "^8.4.33",
         "tailwindcss": "^4.0.0-alpha.2",
         "vite": "^7.0.0"
+    },
+    "dependencies": {
+        "alpinejs": "^3.13.7"
     }
 }

@@ -4,12 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>SO Clone</title>
+    <script>
+        (() => {
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            const applyTheme = (isDark) => {
+                document.documentElement.classList.toggle('dark', isDark);
+                document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+                document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+            };
+
+            try {
+                const storedTheme = window.localStorage.getItem('theme');
+                const isDark = storedTheme === 'dark' || (!storedTheme && prefersDark);
+                applyTheme(isDark);
+            } catch (error) {
+                applyTheme(prefersDark);
+            }
+        })();
+    </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen bg-slate-50">
+<body x-data="themeSwitcher" x-init="init()" class="transition-colors duration-300">
     @include('public.partials.navbar')
 
-    <main class="page-container space-y-10">
+    <main class="page-container space-y-10 transition-colors duration-300">
         <header class="card">
             @include('public.partials.header')
         </header>
@@ -17,13 +36,13 @@
         <section class="grid gap-6 lg:grid-cols-[2fr_1fr]">
             <article class="card">
                 @if (session('status'))
-                    <div class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-semibold text-emerald-700">
+                    <div class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-semibold text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-900/40 dark:text-emerald-200">
                         {{ session('status') }}
                     </div>
                 @endif
 
                 @if ($errors->any())
-                    <div class="mb-6 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+                    <div class="mb-6 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-500/40 dark:bg-rose-900/40 dark:text-rose-200">
                         <p class="font-semibold">Please fix the following issues:</p>
                         <ul class="mt-2 list-disc space-y-1 pl-5">
                             @foreach ($errors->all() as $error)

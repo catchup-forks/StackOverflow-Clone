@@ -1,11 +1,25 @@
-<nav class="bg-slate-900 text-white">
-    <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-        <a class="text-xl font-semibold" href="/">SO Clone</a>
-        <ul class="flex items-center gap-6 text-sm font-medium">
-            <li><a class="transition hover:text-emerald-300" href="/">Home</a></li>
-            <li><a class="transition hover:text-emerald-300" href="/questions">Questions</a></li>
-            <li><a class="transition hover:text-emerald-300" href="/tags">Tags</a></li>
-            <li><a class="transition hover:text-emerald-300" href="/users">Users</a></li>
-        </ul>
+<nav class="navbar">
+    <div class="navbar__inner">
+        <a class="navbar__brand" href="/">SO Clone</a>
+        <div class="flex items-center gap-6">
+            <ul class="navbar__links">
+                <li><a class="navbar__link" href="/">Home</a></li>
+                <li><a class="navbar__link" href="/questions">Questions</a></li>
+                <li><a class="navbar__link" href="/tags">Tags</a></li>
+                <li><a class="navbar__link" href="/users">Users</a></li>
+            </ul>
+            <button
+                type="button"
+                class="theme-toggle"
+                @click="toggleTheme()"
+                x-bind:aria-pressed="darkMode"
+                x-bind:title="darkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+                x-cloak
+            >
+                <span class="sr-only">Toggle dark mode</span>
+                <span aria-hidden="true" x-show="!darkMode">🌙</span>
+                <span aria-hidden="true" x-show="darkMode">☀️</span>
+            </button>
+        </div>
     </div>
 </nav>
