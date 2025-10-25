@@ -16,8 +16,11 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function __construct(private readonly UserService $userService)
+    protected UserService $userService;
+
+    public function __construct(UserService $userService)
     {
+        $this->userService = $userService;
     }
 
     public function index(Request $request): JsonResponse|View

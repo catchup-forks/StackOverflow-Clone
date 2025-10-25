@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\User;
 use App\Models\UserProfile;
 
-class ProfileService
+class ProfileService extends AbstractBaseService
 {
     public function update(User $user, array $data): UserProfile
     {

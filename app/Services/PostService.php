@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\PostType;
 use App\Models\Post;
 use App\Models\Tag;
 use App\Models\User;
@@ -9,12 +10,12 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 
-class PostService
+class PostService extends AbstractBaseService
 {
     public function listQuestions(int $perPage = 15): LengthAwarePaginator
     {
         return Post::query()
-            ->where('post_type_id', 1)
+            ->where('post_type_id', PostType::Question->value)
             ->orderByDesc('creation_date')
             ->with(['comments', 'votes', 'user'])
             ->paginate($perPage);
@@ -23,7 +24,7 @@ class PostService
     public function findQuestion(int $id): Post
     {
         return Post::query()
-            ->where('post_type_id', 1)
+            ->where('post_type_id', PostType::Question->value)
             ->with(['comments', 'user'])
             ->findOrFail($id);
     }
@@ -33,7 +34,7 @@ class PostService
         $now = Carbon::now();
         $tagNames = Tag::query()->whereIn('id', $data['tags'])->pluck('name')->all();
         $post = Post::query()->create([
-            'post_type_id' => 1,
+            'post_type_id' => PostType::Question->value,
             'creation_date' => $now,
             'score' => 0,
             'view_count' => 0,
@@ -84,77 +85,6 @@ class PostService
         $post->delete();
     }
 
-    public function paginateAnswers(int $perPage = 15): LengthAwarePaginator
-    {
-        return Post::query()
-            ->where('post_type_id', 2)
-            ->orderByDesc('creation_date')
-            ->with(['user', 'votes'])
-            ->paginate($perPage);
-    }
-
-    public function findAnswer(int $id): Post
-    {
-        return Post::query()
-            ->where('post_type_id', 2)
-            ->with(['user', 'votes'])
-            ->findOrFail($id);
-    }
-
-    public function createAnswer(array $data, User $user): Post
-    {
-        $now = Carbon::now();
-        $answer = Post::query()->create([
-            'post_type_id' => 2,
-            'parent_id' => $data['question_id'],
-            'creation_date' => $now,
-            'score' => 0,
-            'view_count' => 0,
-            'body' => $data['body'],
-            'user_id' => $user->id,
-            'owner_display_name' => $user->display_name,
-            'last_editor_user_id' => $user->id,
-            'last_editor_display_name' => $user->display_name,
-            'last_edit_date' => $now,
-            'last_activity_date' => $now,
-            'title' => '',
-            'tags' => '',
-            'answer_count' => 0,
-            'comment_count' => 0,
-            'favorite_count' => 0,
-            'is_blog' => $data['is_blog'] ?? false,
-        ]);
-
-        $this->incrementQuestionAnswerCount($data['question_id']);
-
-        return $answer;
-    }
-
-    public function updateAnswer(Post $answer, array $data, User $user): Post
-    {
-        $answer->fill([
-            'body' => $data['body'],
-            'last_editor_user_id' => $user->id,
-            'last_editor_display_name' => $user->display_name,
-            'last_edit_date' => Carbon::now(),
-            'last_activity_date' => Carbon::now(),
-            'is_blog' => $data['is_blog'] ?? $answer->is_blog,
-        ]);
-
-        $answer->save();
-
-        return $answer->refresh();
-    }
-
-    public function deleteAnswer(Post $answer): void
-    {
-        $answer->delete();
-
-        if ($answer->parent_id) {
-            $this->decrementQuestionAnswerCount($answer->parent_id);
-        }
-    }
-
     public function recentTags(): Collection
     {
         return Tag::query()->orderByDesc('count')->limit(10)->get();
@@ -162,7 +92,7 @@ class PostService
 
     public function adminUpdatePost(Post $post, array $data, User $admin): Post
     {
-        if ($post->post_type_id === 1) {
+        if ($post->type() === PostType::Question) {
             return $this->updateQuestion($post, $data, $admin);
         }
 
@@ -185,7 +115,7 @@ class PostService
     {
         return Post::query()
             ->where('parent_id', $question->id)
-            ->where('post_type_id', 2)
+            ->where('post_type_id', PostType::Answer->value)
             ->orderByDesc('creation_date')
             ->get();
     }
@@ -201,23 +131,4 @@ class PostService
         }
     }
 
-    private function incrementQuestionAnswerCount(int $questionId): void
-    {
-        $question = Post::query()->find($questionId);
-
-        if ($question) {
-            $question->increment('answer_count');
-            $question->update(['last_activity_date' => Carbon::now()]);
-        }
-    }
-
-    private function decrementQuestionAnswerCount(int $questionId): void
-    {
-        $question = Post::query()->find($questionId);
-
-        if ($question && $question->answer_count > 0) {
-            $question->decrement('answer_count');
-            $question->update(['last_activity_date' => Carbon::now()]);
-        }
-    }
 }

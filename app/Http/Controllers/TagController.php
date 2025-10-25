@@ -12,8 +12,11 @@ use Illuminate\View\View;
 
 class TagController extends Controller
 {
-    public function __construct(private readonly TagService $tagService)
+    protected TagService $tagService;
+
+    public function __construct(TagService $tagService)
     {
+        $this->tagService = $tagService;
     }
 
     public function index(Request $request): JsonResponse|View

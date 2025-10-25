@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\PostType;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -16,7 +17,7 @@ class PostFactory extends Factory
         $now = Carbon::now();
 
         return [
-            'post_type_id' => 1,
+            'post_type_id' => PostType::Question->value,
             'accepted_answer_id' => null,
             'parent_id' => null,
             'creation_date' => $now,

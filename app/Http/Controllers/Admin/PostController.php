@@ -12,8 +12,11 @@ use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
-    public function __construct(private readonly PostService $postService)
+    protected PostService $postService;
+
+    public function __construct(PostService $postService)
     {
+        $this->postService = $postService;
     }
 
     public function update(QuestionRequest $request, Post $post): JsonResponse|RedirectResponse

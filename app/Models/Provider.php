@@ -2,14 +2,12 @@
 
 namespace App\Models;
 
-use App\Models\Concerns\BelongsToFranchise;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Provider extends BaseModel
 {
-    use BelongsToFranchise;
     use HasFactory;
 
     public $timestamps = false;

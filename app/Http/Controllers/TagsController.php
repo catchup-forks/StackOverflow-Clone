@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\PostType;
 use App\Models\Post;
 use App\Models\Tag;
 use Illuminate\Http\RedirectResponse;
@@ -40,7 +41,7 @@ class TagsController extends BaseController
     {
         $tag = Tag::findOrFail($id);
 
-        $questions = Post::where('post_type_id', 1)
+        $questions = Post::where('post_type_id', PostType::Question->value)
             ->where('tags', 'like', '%' . $tag->name . '%')
             ->with(['user'])
             ->orderByDesc('creation_date')

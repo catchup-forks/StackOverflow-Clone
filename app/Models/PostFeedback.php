@@ -2,15 +2,12 @@
 
 namespace App\Models;
 
-use App\Models\Concerns\BelongsToFranchise;
+use App\Enums\PostType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class PostFeedback extends BaseModel
 {
-    use BelongsToFranchise;
     use HasFactory;
 
     public $timestamps = false;
@@ -39,9 +36,9 @@ class PostFeedback extends BaseModel
         return $this->belongsTo(Post::class, 'post_id');
     }
 
-    public function voteType(): HasOne
+    public function type(): PostType
     {
-        return $this->hasOne(PostType::class, 'post_type_id');
+        return PostType::fromValue((int) ($this->post_type_id ?? 0));
     }
 
     #endregion

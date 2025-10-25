@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\PostType;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +18,7 @@ class PostsTableSeeder extends Seeder
         $posts = [
             [
                 'id' => 1,
-                'post_type_id' => '1',
+                'post_type_id' => PostType::Question->value,
                 'accepted_answer_id' => '',
                 'parent_id' => '',
                 'creation_date' => $now,
@@ -42,7 +43,7 @@ class PostsTableSeeder extends Seeder
             ],
             [
                 'id' => 2,
-                'post_type_id' => '1',
+                'post_type_id' => PostType::Question->value,
                 'accepted_answer_id' => '3',
                 'parent_id' => '',
                 'creation_date' => $now,
@@ -67,7 +68,7 @@ class PostsTableSeeder extends Seeder
             ],
             [
                 'id' => 3,
-                'post_type_id' => '2',
+                'post_type_id' => PostType::Answer->value,
                 'accepted_answer_id' => '',
                 'parent_id' => '2',
                 'creation_date' => $now,
@@ -92,7 +93,7 @@ class PostsTableSeeder extends Seeder
             ],
             [
                 'id' => 4,
-                'post_type_id' => '2',
+                'post_type_id' => PostType::Answer->value,
                 'accepted_answer_id' => '',
                 'parent_id' => '2',
                 'creation_date' => $now,

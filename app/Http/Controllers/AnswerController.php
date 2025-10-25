@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AnswerRequest;
+use App\Services\AnswerService;
 use App\Services\PostService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -11,13 +12,19 @@ use Illuminate\View\View;
 
 class AnswerController extends Controller
 {
-    public function __construct(private readonly PostService $postService)
+    protected AnswerService $answerService;
+
+    protected PostService $postService;
+
+    public function __construct(AnswerService $answerService, PostService $postService)
     {
+        $this->answerService = $answerService;
+        $this->postService = $postService;
     }
 
     public function index(Request $request): JsonResponse|View
     {
-        $answers = $this->postService->paginateAnswers();
+        $answers = $this->answerService->paginate();
 
         if ($request->wantsJson()) {
             return response()->json($answers);
@@ -31,7 +38,7 @@ class AnswerController extends Controller
         $user = $request->user();
         abort_if(! $user, 403);
 
-        $answer = $this->postService->createAnswer($request->validated(), $user);
+        $answer = $this->answerService->create($request->validated(), $user);
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -47,7 +54,7 @@ class AnswerController extends Controller
 
     public function show(Request $request, int $answerId): JsonResponse|RedirectResponse
     {
-        $answer = $this->postService->findAnswer($answerId);
+        $answer = $this->answerService->find($answerId);
 
         if ($request->wantsJson()) {
             return response()->json($answer);
@@ -62,7 +69,7 @@ class AnswerController extends Controller
 
     public function edit(int $answerId): View
     {
-        $answer = $this->postService->findAnswer($answerId);
+        $answer = $this->answerService->find($answerId);
         $question = $answer->parent_id ? $this->postService->findQuestion($answer->parent_id) : null;
 
         return view('public.answer.edit', [
@@ -73,11 +80,11 @@ class AnswerController extends Controller
 
     public function update(AnswerRequest $request, int $answerId): JsonResponse|RedirectResponse
     {
-        $answer = $this->postService->findAnswer($answerId);
+        $answer = $this->answerService->find($answerId);
         $user = $request->user();
         abort_if(! $user, 403);
 
-        $updated = $this->postService->updateAnswer($answer, $request->validated(), $user);
+        $updated = $this->answerService->update($answer, $request->validated(), $user);
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -93,10 +100,10 @@ class AnswerController extends Controller
 
     public function destroy(Request $request, int $answerId): JsonResponse|RedirectResponse
     {
-        $answer = $this->postService->findAnswer($answerId);
+        $answer = $this->answerService->find($answerId);
         $questionId = $answer->parent_id;
 
-        $this->postService->deleteAnswer($answer);
+        $this->answerService->delete($answer);
 
         if ($request->wantsJson()) {
             return response()->json(['message' => trans('messages.answer.deleted')]);

@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\Tag;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
-class TagService
+class TagService extends AbstractBaseService
 {
     public function paginate(int $perPage = 15): LengthAwarePaginator
     {

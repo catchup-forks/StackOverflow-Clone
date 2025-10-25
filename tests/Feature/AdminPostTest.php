@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\PostType;
 use App\Models\Post;
 use App\Models\Tag;
 use App\Models\User;
@@ -16,7 +17,7 @@ class AdminPostTest extends TestCase
     #[Test]
     public function it_allows_admins_to_update_a_post(): void
     {
-        // Arrange
+        /** @Arrange */
         \Spatie\Permission\Models\Role::query()->firstOrCreate([
             'name' => 'admin',
             'guard_name' => 'web',
@@ -24,10 +25,10 @@ class AdminPostTest extends TestCase
 
         $admin = User::factory()->create();
         $admin->assignRole('admin');
-        $question = Post::factory()->create(['post_type_id' => 1]);
+        $question = Post::factory()->create(['post_type_id' => PostType::Question->value]);
         $tags = Tag::factory(2)->create();
 
-        // Act
+        /** @Act */
         $response = $this->actingAs($admin)->patch(route('admin.posts.update', $question), [
             'title' => 'Updated title',
             'body' => 'Updated body',
@@ -35,7 +36,7 @@ class AdminPostTest extends TestCase
             'is_blog' => true,
         ]);
 
-        // Assert
+        /** @Assert */
         $response->assertRedirect(route('question.show', ['question' => $question->id]));
         $this->assertDatabaseHas('posts', [
             'id' => $question->id,

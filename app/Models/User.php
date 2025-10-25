@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Concerns\BelongsToFranchise;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,7 +14,6 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends BaseModel implements AuthenticatableContract
 {
     use Authenticatable;
-    use BelongsToFranchise;
     use HasFactory;
     use HasRoles;
     use Notifiable;

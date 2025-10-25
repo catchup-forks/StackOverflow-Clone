@@ -2,7 +2,6 @@
 
 return [
     'name' => env('APP_NAME', 'SO Clone'),
-    'default_franchise_id' => env('APP_FRANCHISE_ID', 1),
 
     'env' => env('APP_ENV', 'local'),
 

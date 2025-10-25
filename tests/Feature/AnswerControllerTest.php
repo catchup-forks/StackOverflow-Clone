@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\PostType;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -15,17 +16,17 @@ class AnswerControllerTest extends TestCase
     #[Test]
     public function it_creates_an_answer(): void
     {
-        // Arrange
+        /** @Arrange */
         $user = User::factory()->create();
-        $question = Post::factory()->create(['post_type_id' => 1]);
+        $question = Post::factory()->create(['post_type_id' => PostType::Question->value]);
 
-        // Act
+        /** @Act */
         $response = $this->actingAs($user)->post(route('answer.store'), [
             'question_id' => $question->id,
             'body' => 'This is a thorough response.',
         ]);
 
-        // Assert
+        /** @Assert */
         $response->assertRedirect(route('question.show', ['question' => $question->id]));
         $this->assertDatabaseHas('posts', [
             'parent_id' => $question->id,

@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Enums\PostType;
 use App\Models\Comment;
 use App\Models\CommentUpvote;
-use App\Models\Franchise;
 use App\Models\Post;
 use App\Models\Tag;
 use App\Models\User;
@@ -15,8 +15,6 @@ class ModernContentSeeder extends Seeder
 {
     public function run(): void
     {
-        $franchise = Franchise::factory()->create(['name' => 'Default Franchise']);
-
         $roles = collect(['admin', 'user']);
         $roles->each(fn (string $role) => \Spatie\Permission\Models\Role::query()->firstOrCreate([
             'name' => $role,
@@ -30,9 +28,9 @@ class ModernContentSeeder extends Seeder
         ]);
         $allUsers = $users->merge($admins);
 
-        $allUsers->each(function (User $user) use ($franchise): void {
+        $allUsers->each(function (User $user): void {
             $user->profile()->create([
-                'bio' => 'Member of ' . $franchise->name,
+                'bio' => 'Community member',
                 'location' => 'Remote',
                 'website_url' => 'https://example.com',
             ]);
@@ -57,7 +55,7 @@ class ModernContentSeeder extends Seeder
         $questions->take(5)->each(function (Post $question) use ($allUsers): void {
             $responder = $allUsers->random();
             $answer = Post::factory()->create([
-                'post_type_id' => 2,
+                'post_type_id' => PostType::Answer->value,
                 'parent_id' => $question->id,
                 'title' => null,
                 'is_blog' => false,

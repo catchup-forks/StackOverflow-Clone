@@ -14,19 +14,19 @@ class UserPasswordTest extends TestCase
     #[Test]
     public function it_updates_the_user_password(): void
     {
-        // Arrange
+        /** @Arrange */
         $user = User::factory()->create([
             'password' => bcrypt('old-password'),
         ]);
 
-        // Act
+        /** @Act */
         $response = $this->actingAs($user)->post(route('users.password', $user), [
             'current_password' => 'old-password',
             'password' => 'new-password',
             'password_confirmation' => 'new-password',
         ]);
 
-        // Assert
+        /** @Assert */
         $response->assertRedirect(route('users.show', $user));
         $this->assertTrue(password_verify('new-password', $user->fresh()->password));
     }

@@ -2,15 +2,12 @@
 
 namespace App\Models;
 
-use App\Models\Concerns\BelongsToFranchise;
+use App\Enums\PostHistoryType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class PostHistory extends BaseModel
 {
-    use BelongsToFranchise;
     use HasFactory;
 
     public $timestamps = false;
@@ -44,9 +41,9 @@ class PostHistory extends BaseModel
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function postHistoryType(): HasOne
+    public function type(): PostHistoryType
     {
-        return $this->hasOne(PostHistoryType::class, 'post_history_type_id');
+        return PostHistoryType::fromValue((int) ($this->post_history_type_id ?? 0));
     }
 
     #endregion

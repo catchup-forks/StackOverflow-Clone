@@ -7,7 +7,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 
-class UserService
+class UserService extends AbstractBaseService
 {
     public function paginate(?string $search = null, int $perPage = 15): LengthAwarePaginator
     {

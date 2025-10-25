@@ -2,14 +2,12 @@
 
 namespace App\Models;
 
-use App\Models\Concerns\BelongsToFranchise;
+use App\Enums\VoteType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Vote extends BaseModel
 {
-    use BelongsToFranchise;
     use HasFactory;
 
     public $timestamps = false;
@@ -43,9 +41,9 @@ class Vote extends BaseModel
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function voteType(): BelongsTo
+    public function type(): VoteType
     {
-        return $this->belongsTo(VoteType::class, 'vote_type_id');
+        return VoteType::fromValue((int) ($this->vote_type_id ?? 0));
     }
 
     #endregion

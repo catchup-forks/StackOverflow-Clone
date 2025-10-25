@@ -9,7 +9,7 @@ use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
 
-class CommentService
+class CommentService extends AbstractBaseService
 {
     public function paginateForPost(Post $post, int $perPage = 20): LengthAwarePaginator
     {

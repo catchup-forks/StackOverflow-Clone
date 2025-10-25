@@ -11,8 +11,11 @@ use Illuminate\Http\Request;
 
 class CommentController extends Controller
 {
-    public function __construct(private readonly CommentService $commentService)
+    protected CommentService $commentService;
+
+    public function __construct(CommentService $commentService)
     {
+        $this->commentService = $commentService;
     }
 
     public function store(CommentRequest $request): JsonResponse|RedirectResponse

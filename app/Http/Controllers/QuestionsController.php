@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\PostType;
 use App\Models\Post;
 use App\Models\Tag;
 use Illuminate\Http\Request;
@@ -32,7 +33,7 @@ class QuestionsController extends BaseController
         }
 
         $questions = Post::orderBy($sort['name'], $sort['direction'])
-            ->where('post_type_id', '=', '1')
+            ->where('post_type_id', PostType::Question->value)
             ->paginate(10);
         $tags = Tag::all();
 
