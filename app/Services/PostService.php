@@ -10,6 +10,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 class PostService extends AbstractBaseService
 {
@@ -33,7 +34,7 @@ class PostService extends AbstractBaseService
     public function createQuestion(array $data, User $user): Post
     {
         $now = Carbon::now();
-        $tagNames = $this->resolveTagNames($data['tags']);
+        $tagNames = $this->normalizeTagNames($data['tags'] ?? []);
         $post = Post::query()->create([
             'post_type_id' => PostType::Question->value,
             'creation_date' => $now,
@@ -55,13 +56,14 @@ class PostService extends AbstractBaseService
         ]);
 
         $this->syncTags($tagNames, true);
+        $post->tags()->sync($this->ensureTagIds($tagNames));
 
         return $post;
     }
 
     public function updateQuestion(Post $post, array $data, User $user): Post
     {
-        $tagNames = $this->resolveTagNames($data['tags']);
+        $tagNames = $this->normalizeTagNames($data['tags'] ?? []);
 
         $post->fill([
             'body' => $data['body'],
@@ -76,6 +78,7 @@ class PostService extends AbstractBaseService
         $post->save();
 
         $this->syncTags($tagNames);
+        $post->tags()->sync($this->ensureTagIds($tagNames));
 
         return $post->refresh();
     }
@@ -132,20 +135,56 @@ class PostService extends AbstractBaseService
         }
     }
 
-
     /**
-     * @param  array<int, int|string>  $tagIds
+     * @param  array<int, string>|string|null  $tags
      * @return array<int, string>
      */
-    private function resolveTagNames(array $tagIds): array
+    private function normalizeTagNames(array|string|null $tags): array
     {
-        $tags = Tag::query()->whereIn('id', $tagIds)->pluck('name', 'id');
-
-        if ($tags->count() !== count($tagIds)) {
-            throw (new ModelNotFoundException())->setModel(Tag::class);
+        if (is_string($tags)) {
+            $tags = explode(',', $tags);
         }
 
-        return $tags->values()->all();
+        if (! is_array($tags)) {
+            return [];
+        }
+
+        $collection = collect($tags)
+            ->map(fn ($tag) => trim((string) $tag))
+            ->filter();
+
+        $idStrings = $collection->filter(fn (string $tag) => ctype_digit($tag));
+        $names = $collection->diff($idStrings)->map(fn (string $tag) => Str::lower($tag));
+
+        if ($idStrings->isNotEmpty()) {
+            $ids = $idStrings->map(fn (string $id) => (int) $id);
+            $resolved = Tag::query()->whereIn('id', $ids)->pluck('name', 'id');
+
+            if ($resolved->count() !== $ids->count()) {
+                throw (new ModelNotFoundException())->setModel(Tag::class);
+            }
+
+            $names = $names->merge($resolved->map(fn (string $name) => Str::lower($name))->values());
+        }
+
+        return $names
+            ->map(fn (string $tag) => Str::lower($tag))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param  array<int, string>  $tagNames
+     * @return array<int, int>
+     */
+    private function ensureTagIds(array $tagNames): array
+    {
+        return collect($tagNames)
+            ->map(fn (string $tag) => Tag::query()->firstOrCreate(['name' => $tag], ['count' => 0]))
+            ->pluck('id')
+            ->all();
     }
 
 }

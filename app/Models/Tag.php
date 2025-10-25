@@ -4,7 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Tag extends BaseModel
 {
@@ -31,9 +32,19 @@ class Tag extends BaseModel
     |--------------------------------------------------------------------------
     */
 
-    public function posts(): HasMany
+    public function posts(): BelongsToMany
     {
-        return $this->hasMany(PostTag::class, 'tag_id');
+        return $this->belongsToMany(Post::class, 'post_tags', 'tag_id', 'post_id');
+    }
+
+    public function excerptPost(): BelongsTo
+    {
+        return $this->belongsTo(Post::class, 'excerpt_post_id');
+    }
+
+    public function wikiPost(): BelongsTo
+    {
+        return $this->belongsTo(Post::class, 'wiki_post_id');
     }
 
     #endregion

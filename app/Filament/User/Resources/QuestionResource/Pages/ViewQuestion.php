@@ -3,27 +3,29 @@
 namespace App\Filament\User\Resources\QuestionResource\Pages;
 
 use App\Filament\User\Resources\QuestionResource;
-use App\Filament\User\Resources\QuestionResource\Infolists\QuestionInfolist;
-use Filament\Actions;
-use Filament\Infolists\Infolist;
+use App\Services\PostService;
 use Filament\Resources\Pages\ViewRecord;
 
 class ViewQuestion extends ViewRecord
 {
     protected static string $resource = QuestionResource::class;
 
-    public function infolist(Infolist $infolist): Infolist
-    {
-        return QuestionInfolist::configure($infolist);
-    }
+    protected static string $view = 'filament.app.resources.question-resource.pages.view-question';
 
-    protected function getHeaderActions(): array
+    protected function getViewData(): array
     {
+        $service = app(PostService::class);
+
+        $post = $service->findQuestion($this->record->getKey());
+        $answers = $service->answersForQuestion($post)->load(['votes', 'user']);
+        $acceptedAnswer = $answers->firstWhere('id', $post->accepted_answer_id);
+        $otherAnswers = $answers->filter(fn ($answer) => $acceptedAnswer?->id !== $answer->id);
+
         return [
-            Actions\EditAction::make()
-                ->label(__('Edit question')),
-            Actions\DeleteAction::make()
-                ->label(__('Delete question')),
+            'post' => $post->load(['user', 'comments', 'votes']),
+            'answer' => $acceptedAnswer,
+            'answers' => $otherAnswers,
+            'tags' => $service->recentTags(),
         ];
     }
 }
