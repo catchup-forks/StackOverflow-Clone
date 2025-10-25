@@ -1,16 +1,17 @@
 {
-    "author": "Jason Morton",
-    "name": "celebrantsHub",
-    "devDependencies": {
-        "grunt": "~0.4.1",
-        "grunt-contrib-clean": "~0.4.1",
-        "grunt-contrib-compress": "~0.5.0",
-        "grunt-contrib-concat": "~0.3.0",
-        "grunt-contrib-cssmin": "~0.6.0",
-        "grunt-contrib-less": "~0.5.1",
-        "grunt-contrib-watch": "~0.4.3",
-        "grunt-contrib-uglify": "~0.2.0",
-        "grunt-phpunit": "~0.2.1",
-        "grunt-notify": "~0.2.3"
-    }
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.7",
+    "autoprefixer": "^10.4.19",
+    "axios": "^1.6.8",
+    "laravel-vite-plugin": "^1.0.0",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.3",
+    "vite": "^5.2.0"
+  }
 }
