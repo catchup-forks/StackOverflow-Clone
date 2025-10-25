@@ -11,14 +11,14 @@
             <button
                 type="button"
                 class="theme-toggle"
-                @click="toggleTheme()"
-                x-bind:aria-pressed="darkMode"
-                x-bind:title="darkMode ? 'Switch to light mode' : 'Switch to dark mode'"
-                x-cloak
+                data-theme-toggle
+                aria-pressed="false"
+                title="Toggle dark mode"
+                data-cloak
             >
                 <span class="sr-only">Toggle dark mode</span>
-                <span aria-hidden="true" x-show="!darkMode">🌙</span>
-                <span aria-hidden="true" x-show="darkMode">☀️</span>
+                <span aria-hidden="true" data-theme-toggle-icon="moon">🌙</span>
+                <span aria-hidden="true" data-theme-toggle-icon="sun" hidden>☀️</span>
             </button>
         </div>
     </div>

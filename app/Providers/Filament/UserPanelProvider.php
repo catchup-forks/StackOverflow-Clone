@@ -20,7 +20,8 @@ class UserPanelProvider extends PanelProvider
             ->default()
             ->homeUrl(fn () => QuestionResource::getUrl())
             ->colors([
-                'primary' => Color::Indigo,
+                'primary' => Color::hex('#88c0d0'),
+                'gray' => Color::hex('#4c566a'),
             ])
             ->brandName(config('app.name'))
             ->sidebarCollapsibleOnDesktop(false)
@@ -29,6 +30,7 @@ class UserPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/User/Resources'), for: 'App\\Filament\\User\\Resources')
             ->discoverPages(in: app_path('Filament/User/Pages'), for: 'App\\Filament\\User\\Pages')
             ->discoverWidgets(in: app_path('Filament/User/Widgets'), for: 'App\\Filament\\User\\Widgets')
+            ->viteTheme('resources/css/app.css')
             ->userMenuItems([
                 MenuItem::make()->label(__('filament-panels::layout.actions.logout.label'))
                     ->url(fn () => Filament::getLogoutUrl()),
