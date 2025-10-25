@@ -306,6 +306,21 @@
         border-color: transparent;
     }
 
+    .pill-link {
+        @apply inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-200;
+        background-color: var(--color-surface-alt);
+        color: var(--color-text);
+        border: 1px solid var(--color-border);
+        box-shadow: var(--shadow-elevated);
+        @apply dark:bg-[var(--color-surface-alt)] dark:text-[var(--color-text)] dark:border-[var(--color-border)];
+    }
+
+    .pill-link:hover {
+        background-color: var(--color-accent);
+        color: var(--color-navbar-text);
+        border-color: transparent;
+    }
+
     .tag-pill {
         @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide transition-colors duration-200 dark:bg-[var(--color-tag-bg)] dark:text-[var(--color-tag-text)] dark:border-[var(--color-tag-border)];
         background-color: var(--color-tag-bg);
@@ -321,6 +336,62 @@
 
     .tag-pill__icon {
         font-size: 0.75rem;
+    }
+
+    .surface-section {
+        @apply rounded-2xl border p-4 transition-colors duration-300;
+        background-color: var(--color-surface);
+        border-color: var(--color-border);
+        color: inherit;
+        box-shadow: none;
+        @apply dark:bg-[var(--color-surface)] dark:border-[var(--color-border)];
+    }
+
+    .surface-section--muted {
+        background-color: var(--color-surface-alt);
+        @apply dark:bg-[var(--color-surface-alt)];
+    }
+
+    .text-accent {
+        color: var(--color-accent);
+        @apply text-[var(--color-accent)] dark:text-[var(--color-accent)];
+    }
+
+    .text-accent:hover {
+        color: var(--color-accent-hover);
+    }
+
+    .text-danger {
+        color: var(--color-danger);
+        @apply text-[var(--color-danger)] dark:text-[var(--color-danger)];
+    }
+
+    .text-danger:hover {
+        color: color-mix(in srgb, var(--color-danger) 90%, #000000 10%);
+    }
+
+    .vote-stack {
+        @apply flex w-24 flex-col items-center gap-3 rounded-2xl border p-4 text-sm transition-colors duration-300;
+        background-color: var(--color-surface-alt);
+        border-color: var(--color-border);
+        color: var(--color-text-muted);
+        @apply dark:bg-[var(--color-surface-alt)] dark:border-[var(--color-border)] dark:text-[var(--color-text-muted)];
+    }
+
+    .vote-stack__button {
+        @apply text-2xl font-bold transition-colors duration-200;
+        color: var(--color-accent);
+        @apply dark:text-[var(--color-accent)];
+    }
+
+    .vote-stack__button:hover {
+        color: var(--color-accent-hover);
+    }
+
+    .vote-stack__score {
+        @apply text-xl font-semibold;
+        color: var(--color-text);
+        @apply dark:text-[var(--color-text)];
     }
 
     .text-muted {

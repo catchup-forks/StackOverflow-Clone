@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <h4 class="text-xl font-semibold text-slate-800">
+    <h4 class="heading-secondary">
         {{ $post->answer_count }} {{ $post->answer_count > 1 ? 'Answers' : 'Answer' }}
     </h4>
 

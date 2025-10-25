@@ -1,5 +1,5 @@
 <div class="flex-1 space-y-6">
-    <div class="space-y-4 text-slate-700">
+    <div class="space-y-4 text-base leading-relaxed">
         <p>{{ $post->body }}</p>
     </div>
 

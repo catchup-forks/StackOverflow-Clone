@@ -8,7 +8,7 @@
     </header>
 
     <div class="mt-8 space-y-6">
-        {{ $this->form }}
+        {{$this->form}}
         <x-filament-panels::form.actions :actions="$this->getFormActions()" />
     </div>
 @endsection
