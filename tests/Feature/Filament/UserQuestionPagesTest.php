@@ -92,6 +92,30 @@ class UserQuestionPagesTest extends TestCase
     }
 
     #[Test]
+    public function user_can_create_questions_via_filament_form(): void
+    {
+        $user = User::factory()->create(['display_name' => 'Filament Fan']);
+        $existingTag = Tag::factory()->create(['name' => 'filament']);
+
+        Livewire::actingAs($user);
+
+        Livewire::test(CreateQuestion::class)
+            ->fillForm([
+                'title' => 'How do I enable the Nord theme?',
+                'body' => '## I want to use **Nord** colors everywhere.',
+                'tags' => ['Laravel', ' filament ', (string) $existingTag->id],
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $question = Post::query()->where('title', 'How do I enable the Nord theme?')->firstOrFail();
+
+        $this->assertSame('filament,laravel', $question->tags);
+        $this->assertSame($user->id, $question->user_id);
+        $this->assertSame(['filament', 'laravel'], $question->tags()->orderBy('name')->pluck('name')->values()->all());
+    }
+
+    #[Test]
     public function edit_page_shows_existing_question_details_and_guidance(): void
     {
         /** @Arrange */
@@ -118,6 +142,38 @@ class UserQuestionPagesTest extends TestCase
             ->assertSee('Clarify language and improve formatting for readability.')
             ->assertSee('Update tags so experts can continue to find the topic.')
             ->assertSee('Delete question');
+    }
+
+    #[Test]
+    public function user_can_update_questions_and_sync_tags(): void
+    {
+        $owner = User::factory()->create(['display_name' => 'Ada Lovelace']);
+        $question = Post::factory()->create([
+            'user_id' => $owner->id,
+            'owner_display_name' => $owner->display_name,
+            'title' => 'Original Nord question',
+            'body' => 'Initial body',
+            'tags' => 'php,legacy',
+        ]);
+
+        Tag::factory()->create(['name' => 'testing']);
+
+        Livewire::actingAs($owner);
+
+        Livewire::test(EditQuestion::class, ['record' => $question->getKey()])
+            ->fillForm([
+                'title' => 'Updated Nord question',
+                'body' => '### Updated body copy',
+                'tags' => ['Laravel', 'Testing', 'Filament', 'filament'],
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $question->refresh();
+
+        $this->assertSame('Updated Nord question', $question->title);
+        $this->assertSame('filament,laravel,testing', $question->tags);
+        $this->assertSame(['filament', 'laravel', 'testing'], $question->tags()->orderBy('name')->pluck('name')->values()->all());
     }
 
     #[Test]
@@ -176,5 +232,42 @@ class UserQuestionPagesTest extends TestCase
             ->assertSee('Post your answer')
             ->assertSee('filament')
             ->assertSee('testing');
+    }
+
+    #[Test]
+    public function user_can_delete_questions_from_edit_page(): void
+    {
+        $owner = User::factory()->create();
+        $question = Post::factory()->create([
+            'user_id' => $owner->id,
+            'owner_display_name' => $owner->display_name,
+        ]);
+
+        Livewire::actingAs($owner);
+
+        Livewire::test(EditQuestion::class, ['record' => $question->getKey()])
+            ->callAction('delete')
+            ->assertHasNoActionErrors();
+
+        $this->assertDatabaseMissing('posts', ['id' => $question->id]);
+    }
+
+    #[Test]
+    public function creating_a_question_requires_a_title(): void
+    {
+        $user = User::factory()->create();
+
+        Livewire::actingAs($user);
+
+        Livewire::test(CreateQuestion::class)
+            ->fillForm([
+                'title' => '',
+                'body' => 'Body without a title',
+                'tags' => ['Laravel'],
+            ])
+            ->call('create')
+            ->assertHasFormErrors(['title']);
+
+        $this->assertDatabaseMissing('posts', ['body' => 'Body without a title']);
     }
 }

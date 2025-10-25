@@ -7,35 +7,13 @@ use App\Filament\Admin\Resources\PostResource\Pages\ListPosts;
 use App\Models\Post;
 use App\Models\Tag;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use Spatie\Permission\Models\Role;
-use Tests\TestCase;
 
 #[CoversClass(ListPosts::class)]
-class PostResourceCrudTest extends TestCase
+class PostResourceCrudTest extends AdminPanelTestCase
 {
-    use RefreshDatabase;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        Role::query()->firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
-    }
-
-    protected function actingAsAdmin(): User
-    {
-        $admin = User::factory()->create();
-        $admin->assignRole('admin');
-
-        Livewire::actingAs($admin);
-
-        return $admin;
-    }
-
     #[Test]
     public function admin_can_create_posts_via_modal(): void
     {
@@ -122,5 +100,27 @@ class PostResourceCrudTest extends TestCase
             ->assertHasNoActionErrors();
 
         $this->assertDatabaseMissing('posts', ['id' => $post->id]);
+    }
+
+    #[Test]
+    public function creating_a_post_requires_a_title(): void
+    {
+        $this->actingAsAdmin();
+
+        $author = User::factory()->create();
+
+        Livewire::test(ListPosts::class)
+            ->callAction('create', data: [
+                'title' => null,
+                'post_type_id' => PostType::Question->value,
+                'user_id' => $author->id,
+                'tags' => ['Filament'],
+                'body' => 'Body content is present.',
+            ])
+            ->assertHasActionErrors(['title']);
+
+        $this->assertDatabaseMissing('posts', [
+            'body' => 'Body content is present.',
+        ]);
     }
 }
