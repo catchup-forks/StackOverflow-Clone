@@ -12,6 +12,11 @@ class TagService extends AbstractBaseService
         return Tag::query()->orderByDesc('count')->paginate($perPage);
     }
 
+    public function find(int $id): Tag
+    {
+        return Tag::query()->findOrFail($id);
+    }
+
     public function create(array $data): Tag
     {
         return Tag::query()->create($data);
@@ -28,5 +33,10 @@ class TagService extends AbstractBaseService
     public function delete(Tag $tag): void
     {
         $tag->delete();
+    }
+
+    public function idsByNames(array $names): array
+    {
+        return Tag::query()->whereIn('name', $names)->pluck('id')->all();
     }
 }

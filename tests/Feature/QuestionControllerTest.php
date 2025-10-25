@@ -39,6 +39,90 @@ class QuestionControllerTest extends TestCase
     }
 
     #[Test]
+    public function it_lists_questions_as_html(): void
+    {
+        /** @Arrange */
+        Post::factory()->count(3)->create(['post_type_id' => PostType::Question->value]);
+
+        /** @Act */
+        $response = $this->get(route('question.index'));
+
+        /** @Assert */
+        $response->assertOk();
+        $response->assertViewIs('public.questions.index');
+    }
+
+    #[Test]
+    public function it_lists_questions_as_json(): void
+    {
+        /** @Arrange */
+        Post::factory()->count(2)->create(['post_type_id' => PostType::Question->value]);
+
+        /** @Act */
+        $response = $this->getJson(route('question.index'));
+
+        /** @Assert */
+        $response->assertOk();
+        $response->assertJsonStructure(['data']);
+    }
+
+    #[Test]
+    public function it_renders_the_create_form(): void
+    {
+        /** @Arrange */
+        Tag::factory()->count(3)->create();
+
+        /** @Act */
+        $response = $this->actingAs(User::factory()->create())->get(route('question.create'));
+
+        /** @Assert */
+        $response->assertOk();
+        $response->assertViewIs('public.question.create');
+    }
+
+    #[Test]
+    public function it_shows_a_question(): void
+    {
+        /** @Arrange */
+        $question = Post::factory()->create(['post_type_id' => PostType::Question->value]);
+
+        /** @Act */
+        $response = $this->get(route('question.show', $question));
+
+        /** @Assert */
+        $response->assertOk();
+        $response->assertViewIs('public.question.index');
+    }
+
+    #[Test]
+    public function it_shows_a_question_as_json(): void
+    {
+        /** @Arrange */
+        $question = Post::factory()->create(['post_type_id' => PostType::Question->value]);
+
+        /** @Act */
+        $response = $this->getJson(route('question.show', $question));
+
+        /** @Assert */
+        $response->assertOk();
+        $response->assertJson(['id' => $question->id]);
+    }
+
+    #[Test]
+    public function it_renders_the_edit_form(): void
+    {
+        /** @Arrange */
+        $question = Post::factory()->create(['post_type_id' => PostType::Question->value]);
+
+        /** @Act */
+        $response = $this->get(route('question.edit', $question));
+
+        /** @Assert */
+        $response->assertOk();
+        $response->assertViewIs('public.question.edit');
+    }
+
+    #[Test]
     public function it_updates_a_question(): void
     {
         /** @Arrange */
@@ -66,6 +150,28 @@ class QuestionControllerTest extends TestCase
             'body' => 'Updated body',
             'is_blog' => true,
         ]);
+    }
+
+    #[Test]
+    public function it_requires_a_title_when_updating(): void
+    {
+        /** @Arrange */
+        $user = User::factory()->create();
+        $question = Post::factory()->create(['user_id' => $user->id]);
+        $tags = Tag::factory(2)->create();
+
+        /** @Act */
+        $response = $this->from(route('question.edit', $question))
+            ->actingAs($user)
+            ->patch(route('question.update', $question), [
+                'title' => '',
+                'body' => 'Updated body',
+                'tags' => $tags->pluck('id')->all(),
+            ]);
+
+        /** @Assert */
+        $response->assertRedirect(route('question.edit', $question));
+        $response->assertSessionHasErrors(['title']);
     }
 
     #[Test]

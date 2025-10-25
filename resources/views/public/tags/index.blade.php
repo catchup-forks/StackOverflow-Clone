@@ -8,7 +8,7 @@
                 <h1 class="text-2xl font-semibold text-slate-900">All topics</h1>
                 <p class="text-sm text-slate-500">Follow the technologies and concepts you care about.</p>
             </div>
-            <a href="{{ route('tag.create') }}" class="rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-400">Create tag</a>
+            <a href="{{ route('tags.create') }}" class="rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-400">Create tag</a>
         </div>
 
         <form action="{{ route('tags.index') }}" method="GET" class="flex items-center gap-3">
@@ -28,7 +28,7 @@
                 <p class="text-sm text-slate-500">Wiki post: {{ $tag->wiki_post_id ?: 'N/A' }}</p>
                 <div class="mt-4 flex items-center gap-3">
                     <a href="{{ route('tags.show', ['tag' => $tag->id]) }}" class="text-sm font-semibold text-emerald-600 hover:text-emerald-500">View posts</a>
-                    <a href="{{ route('tag.edit', ['tag' => $tag->id]) }}" class="text-sm font-semibold text-slate-600 hover:text-emerald-600">Edit</a>
+                    <a href="{{ route('tags.edit', ['tag' => $tag->id]) }}" class="text-sm font-semibold text-slate-600 hover:text-emerald-600">Edit</a>
                 </div>
             </article>
         @empty

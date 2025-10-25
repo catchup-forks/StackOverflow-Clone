@@ -82,6 +82,16 @@ class UserService extends AbstractBaseService
         ])->save();
     }
 
+    public function validateCurrentPassword(User $user, string $currentPassword): bool
+    {
+        return Hash::check($currentPassword, $user->password ?? '');
+    }
+
+    public function delete(User $user): void
+    {
+        $user->delete();
+    }
+
     public function findWithRecentPosts(int $userId): User
     {
         return User::query()

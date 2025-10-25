@@ -12,15 +12,17 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
     protected UserService $userService;
 
-    public function __construct(UserService $userService)
+    protected ProfileService $profileService;
+
+    public function __construct(UserService $userService, ProfileService $profileService)
     {
         $this->userService = $userService;
+        $this->profileService = $profileService;
     }
 
     public function index(Request $request): JsonResponse|View
@@ -98,7 +100,7 @@ class UserController extends Controller
             abort(403);
         }
 
-        if (! Hash::check($request->input('current_password'), $user->password ?? '')) {
+        if (! $this->userService->validateCurrentPassword($user, $request->input('current_password'))) {
             return back()->withErrors(['current_password' => trans('messages.user.invalid_password')]);
         }
 
@@ -111,7 +113,7 @@ class UserController extends Controller
         return redirect()->route('users.show', $user)->with('status', trans('messages.user.password_updated'));
     }
 
-    public function updateProfile(ProfileRequest $request, User $user, ProfileService $profileService): JsonResponse|RedirectResponse
+    public function updateProfile(ProfileRequest $request, User $user): JsonResponse|RedirectResponse
     {
         $authUser = $request->user();
 
@@ -119,7 +121,7 @@ class UserController extends Controller
             abort(403);
         }
 
-        $profile = $profileService->update($user, $request->validated());
+        $profile = $this->profileService->update($user, $request->validated());
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -133,7 +135,7 @@ class UserController extends Controller
 
     public function destroy(Request $request, User $user): JsonResponse|RedirectResponse
     {
-        $user->delete();
+        $this->userService->delete($user);
 
         if ($request->wantsJson()) {
             return response()->json(['message' => trans('messages.user.deleted')]);

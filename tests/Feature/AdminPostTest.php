@@ -44,4 +44,23 @@ class AdminPostTest extends TestCase
             'is_blog' => true,
         ]);
     }
+
+    #[Test]
+    public function it_forbids_non_admins_from_updating_a_post(): void
+    {
+        /** @Arrange */
+        $user = User::factory()->create();
+        $question = Post::factory()->create(['post_type_id' => PostType::Question->value]);
+        $tags = Tag::factory(2)->create();
+
+        /** @Act */
+        $response = $this->actingAs($user)->patch(route('admin.posts.update', $question), [
+            'title' => 'Updated title',
+            'body' => 'Updated body',
+            'tags' => $tags->pluck('id')->all(),
+        ]);
+
+        /** @Assert */
+        $response->assertForbidden();
+    }
 }

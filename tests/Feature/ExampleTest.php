@@ -2,14 +2,20 @@
 
 namespace Tests\Feature;
 
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
-    public function testApplicationLoads(): void
+    #[Test]
+    public function it_redirects_home_to_questions(): void
     {
+        /** @Arrange */
+
+        /** @Act */
         $response = $this->get('/');
 
-        $response->assertStatus(302);
+        /** @Assert */
+        $response->assertRedirect(route('questions.index'));
     }
 }
