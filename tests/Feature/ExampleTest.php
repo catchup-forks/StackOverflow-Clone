@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Filament\User\Resources\QuestionResource;
 use App\Http\Controllers\HomeController;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -19,7 +20,7 @@ class ExampleTest extends TestCase
         $response = $this->get('/');
 
         /** @Assert */
-        $response->assertRedirect(route('questions.index'));
+        $response->assertRedirect(QuestionResource::getUrl());
     }
 
     #[Test]

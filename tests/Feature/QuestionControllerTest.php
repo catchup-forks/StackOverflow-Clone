@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Filament\User\Resources\QuestionResource;
 use App\Http\Controllers\QuestionController;
 use App\Enums\PostType;
 use App\Models\Post;
@@ -32,8 +33,11 @@ class QuestionControllerTest extends TestCase
             'is_blog' => false,
         ]);
 
+        $questionId = Post::query()->where('title', 'How do I upgrade Laravel?')->value('id');
+
         /** @Assert */
-        $response->assertRedirect();
+        $this->assertNotNull($questionId);
+        $response->assertRedirect(QuestionResource::getUrl('view', ['record' => $questionId]));
         $this->assertDatabaseHas('posts', [
             'title' => 'How do I upgrade Laravel?',
             'post_type_id' => PostType::Question->value,
@@ -51,13 +55,7 @@ class QuestionControllerTest extends TestCase
         $response = $this->get(route('question.index'));
 
         /** @Assert */
-        $response->assertViewIs('public.questions.index');
-        $response->assertViewHas('questions', function ($questions) {
-            return $questions->count() === 3
-                && collect($questions->items())->every(
-                    fn ($question) => $question->post_type_id === PostType::Question->value
-                );
-        });
+        $response->assertRedirect(QuestionResource::getUrl());
     }
 
     #[Test]
@@ -85,9 +83,7 @@ class QuestionControllerTest extends TestCase
         $response = $this->actingAs(User::factory()->create())->get(route('question.create'));
 
         /** @Assert */
-        $response->assertViewIs('public.question.create');
-        $response->assertViewHas('tags', fn ($tags) => $tags->count() === 3);
-        $response->assertViewHas('selectedTags', fn ($selected) => $selected === []);
+        $response->assertRedirect(QuestionResource::getUrl('create'));
     }
 
     #[Test]
@@ -100,9 +96,7 @@ class QuestionControllerTest extends TestCase
         $response = $this->get(route('question.show', $question));
 
         /** @Assert */
-        $response->assertViewIs('public.question.index');
-        $response->assertViewHas('post', fn ($post) => $post->id === $question->id);
-        $response->assertViewHas('answers', fn ($answers) => $answers->count() === 0);
+        $response->assertRedirect(QuestionResource::getUrl('view', ['record' => $question->getKey()]));
     }
 
     #[Test]
@@ -129,10 +123,7 @@ class QuestionControllerTest extends TestCase
         $response = $this->get(route('question.edit', $question));
 
         /** @Assert */
-        $response->assertViewIs('public.question.edit');
-        $response->assertViewHas('question', fn ($viewQuestion) => $viewQuestion->id === $question->id);
-        $response->assertViewHas('tags', fn ($tags) => $tags instanceof \Illuminate\Support\Collection);
-        $response->assertViewHas('selectedTags', fn ($selected) => is_array($selected));
+        $response->assertRedirect(QuestionResource::getUrl('edit', ['record' => $question->getKey()]));
     }
 
     #[Test]
@@ -156,7 +147,7 @@ class QuestionControllerTest extends TestCase
         ]);
 
         /** @Assert */
-        $response->assertRedirect(route('question.show', ['question' => $question->id]));
+        $response->assertRedirect(QuestionResource::getUrl('view', ['record' => $question->getKey()]));
         $this->assertDatabaseHas('posts', [
             'id' => $question->id,
             'title' => 'Updated title',
@@ -174,7 +165,7 @@ class QuestionControllerTest extends TestCase
         $tags = Tag::factory(2)->create();
 
         /** @Act */
-        $response = $this->from(route('question.edit', $question))
+        $response = $this->from(QuestionResource::getUrl('edit', ['record' => $question->getKey()]))
             ->actingAs($user)
             ->patch(route('question.update', $question), [
                 'title' => '',
@@ -183,7 +174,7 @@ class QuestionControllerTest extends TestCase
             ]);
 
         /** @Assert */
-        $response->assertRedirect(route('question.edit', $question));
+        $response->assertRedirect(QuestionResource::getUrl('edit', ['record' => $question->getKey()]));
         $response->assertSessionHasErrors(['title']);
     }
 
@@ -198,7 +189,7 @@ class QuestionControllerTest extends TestCase
         $response = $this->actingAs($user)->delete(route('question.destroy', $question));
 
         /** @Assert */
-        $response->assertRedirect(route('questions.index'));
+        $response->assertRedirect(QuestionResource::getUrl());
         $this->assertDatabaseMissing('posts', ['id' => $question->id]);
     }
 
@@ -209,14 +200,14 @@ class QuestionControllerTest extends TestCase
         $user = User::factory()->create();
 
         /** @Act */
-        $response = $this->from(route('question.create'))->actingAs($user)->post(route('question.store'), [
+        $response = $this->from(QuestionResource::getUrl('create'))->actingAs($user)->post(route('question.store'), [
             'title' => 'Validation title',
             'body' => 'Validation body',
             'tags' => [],
         ]);
 
         /** @Assert */
-        $response->assertRedirect(route('question.create'));
+        $response->assertRedirect(QuestionResource::getUrl('create'));
         $response->assertSessionHasErrors(['tags']);
         $this->assertDatabaseCount('posts', 0);
     }
