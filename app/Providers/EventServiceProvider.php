@@ -49,5 +49,6 @@ class EventServiceProvider extends ServiceProvider
         ] as $model) {
             $model::observe($observer);
         }
+
     }
 }

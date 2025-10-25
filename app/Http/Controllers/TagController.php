@@ -49,37 +49,41 @@ class TagController extends Controller
         return redirect()->route('tags.show', $tag)->with('status', trans('messages.tag.created'));
     }
 
-    public function show(Request $request, Tag $tag): JsonResponse|View
+    public function show(Request $request, int $tag): JsonResponse|View
     {
+        $tagModel = $this->tagService->find($tag);
+
         if ($request->wantsJson()) {
-            return response()->json($tag);
+            return response()->json($tagModel);
         }
 
-        return view('public.tags.show', ['tag' => $tag]);
+        return view('public.tags.show', ['tag' => $tagModel]);
     }
 
-    public function edit(Tag $tag): View
+    public function edit(int $tag): View
     {
-        return view('public.tags.edit', ['tag' => $tag]);
+        return view('public.tags.edit', ['tag' => $this->tagService->find($tag)]);
     }
 
-    public function update(TagRequest $request, Tag $tag): JsonResponse|RedirectResponse
+    public function update(TagRequest $request, int $tag): JsonResponse|RedirectResponse
     {
-        $tag = $this->tagService->update($tag, $request->validated());
+        $tagModel = $this->tagService->find($tag);
+        $tagModel = $this->tagService->update($tagModel, $request->validated());
 
         if ($request->wantsJson()) {
             return response()->json([
                 'message' => trans('messages.tag.updated'),
-                'tag' => $tag,
+                'tag' => $tagModel,
             ]);
         }
 
-        return redirect()->route('tags.show', $tag)->with('status', trans('messages.tag.updated'));
+        return redirect()->route('tags.show', $tagModel)->with('status', trans('messages.tag.updated'));
     }
 
-    public function destroy(Request $request, Tag $tag): JsonResponse|RedirectResponse
+    public function destroy(Request $request, int $tag): JsonResponse|RedirectResponse
     {
-        $this->tagService->delete($tag);
+        $tagModel = $this->tagService->find($tag);
+        $this->tagService->delete($tagModel);
 
         if ($request->wantsJson()) {
             return response()->json(['message' => trans('messages.tag.deleted')]);

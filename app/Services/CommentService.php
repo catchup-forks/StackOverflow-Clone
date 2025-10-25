@@ -21,10 +21,11 @@ class CommentService extends AbstractBaseService
 
     public function create(array $data, User $user): Comment
     {
+        $post = Post::query()->findOrFail($data['post_id']);
         $now = Carbon::now();
 
         $comment = Comment::query()->create([
-            'post_id' => $data['post_id'],
+            'post_id' => $post->id,
             'score' => 0,
             'body' => $data['body'],
             'creation_date' => $now,
@@ -33,8 +34,8 @@ class CommentService extends AbstractBaseService
             'requires_admin_review' => $data['requires_admin_review'] ?? false,
         ]);
 
-        Post::query()->whereKey($data['post_id'])->increment('comment_count');
-        Post::query()->whereKey($data['post_id'])->update(['last_activity_date' => Carbon::now()]);
+        $post->increment('comment_count');
+        $post->forceFill(['last_activity_date' => Carbon::now()])->save();
 
         return $comment;
     }

@@ -7,7 +7,7 @@
         <p class="text-sm text-slate-500">Define a clear, descriptive name so the community can find related questions.</p>
     </header>
 
-    <form action="{{ route('tag.store') }}" method="POST" class="mt-8 space-y-6">
+    <form action="{{ route('tags.store') }}" method="POST" class="mt-8 space-y-6">
         @csrf
 
         <div class="space-y-2">

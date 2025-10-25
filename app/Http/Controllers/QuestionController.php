@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\QuestionRequest;
-use App\Models\Tag;
 use App\Services\PostService;
+use App\Services\TagService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,9 +14,12 @@ class QuestionController extends Controller
 {
     protected PostService $postService;
 
-    public function __construct(PostService $postService)
+    protected TagService $tagService;
+
+    public function __construct(PostService $postService, TagService $tagService)
     {
         $this->postService = $postService;
+        $this->tagService = $tagService;
     }
 
     public function index(Request $request): JsonResponse|View
@@ -73,13 +76,14 @@ class QuestionController extends Controller
         $selectedTags = collect(explode(',', (string) $question->tags))
             ->map(fn (string $tag) => trim($tag))
             ->filter()
-            ->flatMap(fn (string $tag) => Tag::query()->where('name', $tag)->pluck('id'))
-            ->all();
+            ->values();
+
+        $selectedTagIds = $this->tagService->idsByNames($selectedTags->all());
 
         return view('public.question.edit', [
             'question' => $question,
             'tags' => $this->postService->recentTags(),
-            'selectedTags' => $selectedTags,
+            'selectedTags' => $selectedTagIds,
         ]);
     }
 

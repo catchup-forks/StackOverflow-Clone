@@ -41,7 +41,7 @@
         <h2 class="text-lg font-semibold text-slate-800">Manage this tag</h2>
         <p>Keep the wiki and excerpt posts up to date so newcomers can quickly understand what this tag represents.</p>
         <div class="flex flex-col gap-2">
-            <a href="{{ route('tag.edit', ['tag' => $tag->id]) }}" class="text-sm font-semibold text-emerald-600 hover:text-emerald-500">Edit metadata</a>
+            <a href="{{ route('tags.edit', ['tag' => $tag->id]) }}" class="text-sm font-semibold text-emerald-600 hover:text-emerald-500">Edit metadata</a>
             <a href="{{ route('tags.index') }}" class="text-sm font-semibold text-slate-600 hover:text-emerald-600">Back to all tags</a>
         </div>
     </div>

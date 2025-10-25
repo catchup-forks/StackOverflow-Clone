@@ -29,10 +29,15 @@ class AnswerService extends AbstractBaseService
 
     public function create(array $data, User $user): Post
     {
+        $question = Post::query()
+            ->where('post_type_id', PostType::Question->value)
+            ->findOrFail($data['question_id']);
+
         $now = Carbon::now();
+
         $answer = Post::query()->create([
             'post_type_id' => PostType::Answer->value,
-            'parent_id' => $data['question_id'],
+            'parent_id' => $question->id,
             'creation_date' => $now,
             'score' => 0,
             'view_count' => 0,
@@ -51,7 +56,7 @@ class AnswerService extends AbstractBaseService
             'is_blog' => $data['is_blog'] ?? false,
         ]);
 
-        $this->incrementQuestionAnswerCount($data['question_id']);
+        $this->incrementQuestionAnswerCount($question);
 
         return $answer;
     }
@@ -78,27 +83,28 @@ class AnswerService extends AbstractBaseService
         $answer->delete();
 
         if ($parentId) {
-            $this->decrementQuestionAnswerCount($parentId);
+            $question = Post::query()
+                ->where('post_type_id', PostType::Question->value)
+                ->find($parentId);
+
+            if ($question) {
+                $this->decrementQuestionAnswerCount($question);
+            }
         }
     }
 
-    private function incrementQuestionAnswerCount(int $questionId): void
+    private function incrementQuestionAnswerCount(Post $question): void
     {
-        $question = Post::query()->find($questionId);
-
-        if ($question) {
-            $question->increment('answer_count');
-            $question->update(['last_activity_date' => Carbon::now()]);
-        }
+        $question->increment('answer_count');
+        $question->forceFill(['last_activity_date' => Carbon::now()])->save();
     }
 
-    private function decrementQuestionAnswerCount(int $questionId): void
+    private function decrementQuestionAnswerCount(Post $question): void
     {
-        $question = Post::query()->find($questionId);
-
-        if ($question && $question->answer_count > 0) {
+        if ($question->answer_count > 0) {
             $question->decrement('answer_count');
-            $question->update(['last_activity_date' => Carbon::now()]);
         }
+
+        $question->forceFill(['last_activity_date' => Carbon::now()])->save();
     }
 }

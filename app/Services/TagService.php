@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Tag;
+use InvalidArgumentException;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class TagService extends AbstractBaseService
@@ -12,8 +13,17 @@ class TagService extends AbstractBaseService
         return Tag::query()->orderByDesc('count')->paginate($perPage);
     }
 
+    public function find(int $id): Tag
+    {
+        return Tag::query()->findOrFail($id);
+    }
+
     public function create(array $data): Tag
     {
+        if (empty($data['name'])) {
+            throw new InvalidArgumentException('Tag name is required.');
+        }
+
         return Tag::query()->create($data);
     }
 
@@ -28,5 +38,10 @@ class TagService extends AbstractBaseService
     public function delete(Tag $tag): void
     {
         $tag->delete();
+    }
+
+    public function idsByNames(array $names): array
+    {
+        return Tag::query()->whereIn('name', $names)->pluck('id')->all();
     }
 }
