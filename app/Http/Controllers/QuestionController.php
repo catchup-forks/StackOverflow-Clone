@@ -4,25 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\QuestionRequest;
 use App\Services\PostService;
-use App\Services\TagService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 
 class QuestionController extends Controller
 {
     protected PostService $postService;
 
-    protected TagService $tagService;
-
-    public function __construct(PostService $postService, TagService $tagService)
+    public function __construct(PostService $postService)
     {
         $this->postService = $postService;
-        $this->tagService = $tagService;
     }
 
-    public function index(Request $request): JsonResponse|View
+    public function index(Request $request): JsonResponse|RedirectResponse
     {
         $questions = $this->postService->listQuestions();
 
@@ -30,15 +25,12 @@ class QuestionController extends Controller
             return response()->json($questions);
         }
 
-        return view('public.questions.index', ['questions' => $questions]);
+        return redirect()->route('filament.app.resources.questions.index');
     }
 
-    public function create(): View
+    public function create(): RedirectResponse
     {
-        return view('public.question.create', [
-            'tags' => $this->postService->recentTags(),
-            'selectedTags' => [],
-        ]);
+        return redirect()->route('filament.app.resources.questions.create');
     }
 
     public function store(QuestionRequest $request): RedirectResponse|JsonResponse
@@ -55,36 +47,27 @@ class QuestionController extends Controller
             ], 201);
         }
 
-        return redirect()
-            ->route('question.show', ['question' => $question->id])
-            ->with('status', trans('messages.question.created'));
+        return redirect()->route('filament.app.resources.questions.view', ['record' => $question->getKey()]);
     }
 
-    public function show(int $questionId): View
+    public function show(Request $request, int $questionId): RedirectResponse|JsonResponse
     {
         $question = $this->postService->findQuestion($questionId);
 
-        return view('public.question.index', [
-            'post' => $question,
-            'answers' => $this->postService->answersForQuestion($question),
-        ]);
+        if ($request->wantsJson()) {
+            return response()->json([
+                'post' => $question,
+                'answers' => $this->postService->answersForQuestion($question),
+            ]);
+        }
+
+        return redirect()->route('filament.app.resources.questions.view', ['record' => $question->getKey()]);
     }
 
-    public function edit(int $questionId): View
+    public function edit(int $questionId): RedirectResponse
     {
         $question = $this->postService->findQuestion($questionId);
-        $selectedTags = collect(explode(',', (string) $question->tags))
-            ->map(fn (string $tag) => trim($tag))
-            ->filter()
-            ->values();
-
-        $selectedTagIds = $this->tagService->idsByNames($selectedTags->all());
-
-        return view('public.question.edit', [
-            'question' => $question,
-            'tags' => $this->postService->recentTags(),
-            'selectedTags' => $selectedTagIds,
-        ]);
+        return redirect()->route('filament.app.resources.questions.edit', ['record' => $question->getKey()]);
     }
 
     public function update(QuestionRequest $request, int $questionId): RedirectResponse|JsonResponse
@@ -102,9 +85,7 @@ class QuestionController extends Controller
             ]);
         }
 
-        return redirect()
-            ->route('question.show', ['question' => $updated->id])
-            ->with('status', trans('messages.question.updated'));
+        return redirect()->route('filament.app.resources.questions.view', ['record' => $updated->getKey()]);
     }
 
     public function destroy(Request $request, int $questionId): RedirectResponse|JsonResponse
@@ -116,6 +97,6 @@ class QuestionController extends Controller
             return response()->json(['message' => trans('messages.question.deleted')]);
         }
 
-        return redirect()->route('questions.index')->with('status', trans('messages.question.deleted'));
+        return redirect()->route('filament.app.resources.questions.index')->with('status', trans('messages.question.deleted'));
     }
 }

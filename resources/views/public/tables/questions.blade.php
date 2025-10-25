@@ -1,32 +1,32 @@
 <div class="space-y-6">
-    <h2 class="text-2xl font-semibold text-slate-800">{{ ucfirst(request('sort', 'latest')) }} Questions</h2>
-    <div class="overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
-        <table class="min-w-full divide-y divide-slate-200">
-            <tbody class="divide-y divide-slate-100 bg-white">
+    <h2 class="heading-primary">{{ ucfirst(request('sort', 'latest')) }} Questions</h2>
+    <div class="overflow-hidden">
+        <table class="table-nord">
+            <tbody>
             @foreach($questions as $q)
-                <tr class="transition hover:bg-slate-50/80">
-                    <td class="p-4 text-center text-sm font-semibold text-slate-600">
+                <tr>
+                    <td class="text-center text-sm font-semibold text-muted">
                         <p>{{ $q->votes->count() }}</p>
-                        <p class="text-xs uppercase tracking-wide text-slate-400">Vote</p>
+                        <p class="text-xs uppercase tracking-wide text-muted">Vote</p>
                     </td>
-                    <td class="p-4 text-center text-sm font-semibold text-slate-600">
+                    <td class="text-center text-sm font-semibold text-muted">
                         <p>{{ $q->answer_count }}</p>
-                        <p class="text-xs uppercase tracking-wide text-slate-400">Answers</p>
+                        <p class="text-xs uppercase tracking-wide text-muted">Answers</p>
                     </td>
-                    <td class="p-4 text-center text-sm font-semibold text-slate-600">
+                    <td class="text-center text-sm font-semibold text-muted">
                         <p>{{ $q->view_count }}</p>
-                        <p class="text-xs uppercase tracking-wide text-slate-400">Views</p>
+                        <p class="text-xs uppercase tracking-wide text-muted">Views</p>
                     </td>
-                    <td class="p-4 text-sm text-slate-700">
-                        <p class="font-semibold text-slate-900">
-                            <a href="{{ route('question.show', ['question' => $q->id]) }}" class="hover:text-emerald-600">{{ $q->title }}</a>
+                    <td class="text-sm">
+                        <p class="font-semibold">
+                            <a href="{{ route('question.show', ['question' => $q->id]) }}">{{ $q->title }}</a>
                         </p>
-                        <p class="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                        <p class="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted">
                             @foreach(explode(',', (string) $q->tags) as $tag)
-                                <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 font-medium text-emerald-700">{{ trim($tag) }}</span>
+                                <span class="tag-pill">{{ trim($tag) }}</span>
                             @endforeach
-                            <span class="ml-auto font-semibold text-slate-700">{{ $q->user->reputation }}</span>
-                            <a class="font-semibold text-emerald-600 hover:text-emerald-500" href="{{ route('users.show', ['user' => $q->user_id]) }}">{{ $q->user->display_name }}</a>
+                            <span class="ml-auto font-semibold">{{ $q->user->reputation }}</span>
+                            <a class="font-semibold" href="{{ route('users.show', ['user' => $q->user_id]) }}">{{ $q->user->display_name }}</a>
                         </p>
                     </td>
                 </tr>

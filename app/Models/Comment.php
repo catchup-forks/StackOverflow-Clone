@@ -49,6 +49,11 @@ class Comment extends BaseModel
         return $this->hasMany(CommentUpvote::class, 'comment_id');
     }
 
+    public function adminEditor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'admin_editor_id');
+    }
+
     #endregion
     #region Accessors
     /*

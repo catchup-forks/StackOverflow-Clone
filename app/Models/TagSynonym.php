@@ -36,6 +36,11 @@ class TagSynonym extends BaseModel
         return $this->belongsTo(User::class, 'approved_by_user_id');
     }
 
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
     #endregion
     #region Accessors
     /*

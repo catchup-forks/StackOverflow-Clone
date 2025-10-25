@@ -1,73 +1,98 @@
 import '../css/app.css';
-import Alpine from 'alpinejs';
 
-window.Alpine = Alpine;
+const storageKey = 'theme';
+const mediaQuery = typeof window !== 'undefined' && window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 
-Alpine.data('themeSwitcher', () => ({
-    darkMode: false,
-    storedPreference: null,
+const getStoredTheme = () => {
+    try {
+        return window.localStorage.getItem(storageKey);
+    } catch (error) {
+        return null;
+    }
+};
 
-    init() {
-        try {
-            const savedTheme = window.localStorage.getItem('theme');
-            if (savedTheme === 'dark' || savedTheme === 'light') {
-                this.storedPreference = savedTheme;
-                this.darkMode = savedTheme === 'dark';
-            } else {
-                this.darkMode = this.prefersDark();
-            }
-        } catch (error) {
-            this.darkMode = this.prefersDark();
+const setStoredTheme = (value) => {
+    try {
+        if (value === null) {
+            window.localStorage.removeItem(storageKey);
+            return;
         }
 
-        this.updateDom(this.darkMode);
+        window.localStorage.setItem(storageKey, value);
+    } catch (error) {
+        // Ignore storage failures (e.g. private browsing)
+    }
+};
 
-        const mediaQuery = this.getMediaQuery();
-        if (mediaQuery) {
-            mediaQuery.addEventListener('change', (event) => {
-                if (this.storedPreference === null) {
-                    this.darkMode = event.matches;
-                    this.updateDom(this.darkMode);
-                }
-            });
+const applyTheme = (theme) => {
+    const root = document.documentElement;
+    const isDark = theme === 'dark';
+
+    root.classList.toggle('dark', isDark);
+    root.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    root.style.colorScheme = isDark ? 'dark' : 'light';
+};
+
+const syncToggleState = (toggles, theme) => {
+    toggles.forEach((toggle) => {
+        toggle.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
+        toggle.setAttribute('data-theme-active', theme);
+        const nextTitle = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+        toggle.setAttribute('title', nextTitle);
+        toggle.setAttribute('aria-label', nextTitle);
+
+        const sun = toggle.querySelector('[data-theme-toggle-icon="sun"]');
+        const moon = toggle.querySelector('[data-theme-toggle-icon="moon"]');
+
+        if (sun) {
+            sun.hidden = theme !== 'dark';
         }
 
-        this.$watch('darkMode', (value) => {
-            this.updateDom(value);
+        if (moon) {
+            moon.hidden = theme === 'dark';
+        }
+    });
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    const toggles = Array.from(document.querySelectorAll('[data-theme-toggle]'));
+
+    if (toggles.length === 0) {
+        return;
+    }
+
+    let storedPreference = getStoredTheme();
+    const root = document.documentElement;
+    let currentTheme = storedPreference ?? (root.classList.contains('dark') ? 'dark' : 'light');
+
+    applyTheme(currentTheme);
+    syncToggleState(toggles, currentTheme);
+
+    const setTheme = (nextTheme, persist = true) => {
+        currentTheme = nextTheme;
+        applyTheme(nextTheme);
+        syncToggleState(toggles, nextTheme);
+
+        if (persist) {
+            storedPreference = nextTheme;
+            setStoredTheme(nextTheme);
+        }
+    };
+
+    toggles.forEach((toggle) => {
+        toggle.addEventListener('click', () => {
+            const nextTheme = root.classList.contains('dark') ? 'light' : 'dark';
+            setTheme(nextTheme);
         });
-    },
+    });
 
-    toggleTheme() {
-        this.darkMode = !this.darkMode;
-        this.storedPreference = this.darkMode ? 'dark' : 'light';
+    if (mediaQuery) {
+        mediaQuery.addEventListener('change', (event) => {
+            if (storedPreference === null) {
+                setTheme(event.matches ? 'dark' : 'light', false);
+            }
+        });
+    }
+});
 
-        try {
-            window.localStorage.setItem('theme', this.storedPreference);
-        } catch (error) {
-            // Ignore storage failures (e.g. private mode)
-        }
-    },
-
-    updateDom(value) {
-        document.documentElement.classList.toggle('dark', value);
-        document.documentElement.setAttribute('data-theme', value ? 'dark' : 'light');
-        document.documentElement.style.colorScheme = value ? 'dark' : 'light';
-    },
-
-    prefersDark() {
-        const mediaQuery = this.getMediaQuery();
-        return mediaQuery ? mediaQuery.matches : false;
-    },
-
-    getMediaQuery() {
-        if (typeof window === 'undefined' || !window.matchMedia) {
-            return null;
-        }
-
-        return window.matchMedia('(prefers-color-scheme: dark)');
-    },
-}));
-
-Alpine.start();
-
-console.info('Legacy StackOverflow clone assets compiled with Vite.');
+console.info('Legacy StackOverflow clone assets compiled with Vite and Nord theme.');

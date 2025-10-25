@@ -1,0 +1,85 @@
+@import '../app.css';
+
+@layer components {
+    .fi-body {
+        background-color: var(--color-background);
+        color: var(--color-text);
+    }
+
+    .fi-header,
+    .fi-topbar {
+        background-color: var(--color-navbar);
+        color: var(--color-navbar-text);
+        border-color: var(--color-border);
+        box-shadow: var(--shadow-elevated);
+    }
+
+    .fi-sidebar {
+        background-color: var(--color-surface);
+        color: var(--color-text);
+        border-color: var(--color-border);
+    }
+
+    .fi-sidebar nav a {
+        color: var(--color-text);
+    }
+
+    .fi-sidebar nav a:hover,
+    .fi-sidebar nav a[aria-current='page'] {
+        color: var(--color-navbar-text);
+        background-color: var(--color-accent);
+    }
+
+    .fi-section,
+    .fi-panel::after,
+    .fi-ta-table {
+        background-color: var(--color-surface);
+        border-color: var(--color-border);
+        color: var(--color-text);
+        box-shadow: var(--shadow-elevated);
+    }
+
+    .fi-badge,
+    .fi-badge::after {
+        background-color: var(--color-tag-bg);
+        color: var(--color-tag-text);
+    }
+
+    .fi-btn,
+    .fi-icon-btn {
+        border-radius: 9999px;
+    }
+
+    .fi-btn-primary,
+    .fi-icon-btn-primary {
+        background-color: var(--color-button);
+        color: var(--color-navbar-text);
+        border-color: transparent;
+    }
+
+    .fi-btn-primary:hover,
+    .fi-icon-btn-primary:hover {
+        background-color: var(--color-button-hover);
+    }
+
+    .fi-btn-outline,
+    .fi-icon-btn-outline {
+        color: var(--color-button);
+        border-color: var(--color-button);
+    }
+
+    .fi-btn-outline:hover,
+    .fi-icon-btn-outline:hover {
+        background-color: var(--color-button);
+        color: var(--color-navbar-text);
+    }
+
+    .fi-dropdown-panel,
+    .fi-modal-window,
+    .fi-panel::before {
+        background-color: var(--color-surface);
+        color: var(--color-text);
+        border-color: var(--color-border);
+        box-shadow: var(--shadow-elevated);
+    }
+}

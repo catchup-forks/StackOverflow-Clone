@@ -27,7 +27,7 @@ return [
         'driver' => 'file',
     ],
 
-    'providers' => [
+    'providers' => array_merge([
         Illuminate\Auth\AuthServiceProvider::class,
         Illuminate\Broadcasting\BroadcastServiceProvider::class,
         Illuminate\Bus\BusServiceProvider::class,
@@ -55,7 +55,7 @@ return [
         App\Providers\AppServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-    ],
+    ], require base_path('bootstrap/providers.php')),
 
     'aliases' => [
         'App' => Illuminate\Support\Facades\App::class,

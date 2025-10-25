@@ -17,7 +17,7 @@ class QuestionRequest extends FormRequest
             'title' => ['required', 'string', 'max:250'],
             'body' => ['required', 'string'],
             'tags' => ['required', 'array', 'min:1'],
-            'tags.*' => ['integer', 'exists:tags,id'],
+            'tags.*' => ['string', 'max:25'],
             'is_blog' => ['sometimes', 'boolean'],
         ];
     }
