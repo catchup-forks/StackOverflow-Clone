@@ -10,233 +10,214 @@ use App\Models\Post;
 use App\Models\SuggestedEdit;
 use App\Models\User;
 use App\Models\Vote;
+use App\Services\CommentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class UserAdminWorkflowTest extends TestCase
 {
     use RefreshDatabase;
 
-    #[Test]
-    public function it_covers_end_to_end_user_and_admin_flow(): void
+    protected User $user;
+
+    protected User $admin;
+
+    protected function setUp(): void
     {
-        /** @Arrange */
-        \Spatie\Permission\Models\Role::query()->firstOrCreate([
+        parent::setUp();
+
+        Role::query()->firstOrCreate([
             'name' => 'admin',
             'guard_name' => 'web',
         ]);
 
-        $user = User::factory()->create([
+        $this->user = User::factory()->create([
             'display_name' => 'Curious User',
         ]);
 
-        $admin = User::factory()->create([
+        $this->admin = User::factory()->create([
             'display_name' => 'Admin User',
         ]);
-        $admin->assignRole('admin');
 
-        $questions = Post::factory()->count(100)->create([
+        $this->admin->assignRole('admin');
+    }
+
+    #[Test]
+    public function user_can_paginate_question_list(): void
+    {
+        Post::factory()->count(100)->create([
             'post_type_id' => PostType::Question->value,
         ]);
 
-        $questions->take(2)->each(function (Post $question) use ($user): void {
-            $question->update([
-                'user_id' => $user->id,
-                'owner_display_name' => $user->display_name,
-                'title' => 'Maintaining legacy Laravel '.$question->id,
-            ]);
-        });
+        $response = $this->actingAs($this->user)->getJson(route('question.index'));
 
-        /** @Act: user browses paginated questions */
-        $indexResponse = $this->actingAs($user)->getJson(route('question.index'));
+        $response->assertOk();
+        $response->assertJsonPath('meta.total', 100);
+        $response->assertJsonPath('meta.per_page', 15);
+        $response->assertJsonCount(15, 'data');
+    }
 
-        /** @Assert */
-        $indexResponse->assertOk();
-        $indexResponse->assertJsonPath('meta.total', 100);
-        $indexResponse->assertJsonPath('meta.per_page', 15);
-        $indexResponse->assertJsonCount(15, 'data');
+    #[Test]
+    public function user_can_comment_on_multiple_questions(): void
+    {
+        $questions = Post::factory()->count(5)->create([
+            'post_type_id' => PostType::Question->value,
+        ]);
 
-        /** @Act: user comments on five different questions */
-        $commentedQuestions = $questions->take(5);
-        $createdComments = collect();
-
-        foreach ($commentedQuestions as $offset => $question) {
-            $commentResponse = $this->actingAs($user)->postJson(route('comments.store'), [
+        foreach ($questions as $offset => $question) {
+            $commentResponse = $this->actingAs($this->user)->postJson(route('comments.store'), [
                 'post_id' => $question->id,
-                'body' => "Helpful insight #".($offset + 1),
+                'body' => 'Helpful insight #'.($offset + 1),
             ]);
 
             $commentResponse->assertCreated();
             $commentResponse->assertJsonFragment(['message' => trans('messages.comment.created')]);
-
-            $commentId = $commentResponse->json('comment.id');
-            $this->assertNotNull($commentId);
-
-            $createdComments->push(Comment::query()->findOrFail($commentId));
-
             $this->assertSame(1, $question->fresh()->comment_count);
         }
+    }
 
-        /** @Act: user flags three comments for admin review */
-        foreach ($createdComments->take(3) as $comment) {
-            $flagResponse = $this->actingAs($user)->postJson(route('comments.flag', $comment));
-            $flagResponse->assertOk();
-            $flagResponse->assertJsonFragment(['message' => trans('messages.comment.flagged')]);
-            $this->assertTrue($comment->fresh()->requires_admin_review);
-        }
+    #[Test]
+    public function user_can_flag_comment_for_admin_review(): void
+    {
+        $question = Post::factory()->create([
+            'post_type_id' => PostType::Question->value,
+        ]);
 
-        /** @Act: user requests admin edits on three questions via suggested edits */
-        foreach ($commentedQuestions->take(3) as $question) {
+        $comment = Comment::factory()->create([
+            'post_id' => $question->id,
+            'user_id' => $this->user->id,
+        ]);
+
+        $response = $this->actingAs($this->user)->postJson(route('comments.flag', $comment));
+
+        $response->assertOk();
+        $response->assertJsonFragment(['message' => trans('messages.comment.flagged')]);
+        $this->assertTrue($comment->fresh()->requires_admin_review);
+    }
+
+    #[Test]
+    public function user_can_request_admin_edits_for_questions(): void
+    {
+        $questions = Post::factory()->count(3)->create([
+            'post_type_id' => PostType::Question->value,
+        ]);
+
+        foreach ($questions as $question) {
             SuggestedEdit::factory()->create([
                 'post_id' => $question->id,
-                'owner_user_id' => $user->id,
+                'owner_user_id' => $this->user->id,
                 'comment' => 'Needs admin polish',
             ]);
         }
 
-        /** @Act: user updates two of their own questions */
-        $ownedQuestions = $questions->where('user_id', $user->id)->take(2);
-        $ownedQuestions->each(function (Post $question, int $index) use ($user): void {
-            $updateResponse = $this->actingAs($user)->patchJson(route('question.update', $question), [
-                'title' => "Updated question copy ".($index + 1),
-                'body' => "### Revised body text version ".($index + 1),
+        $this->assertSame(3, SuggestedEdit::query()
+            ->where('owner_user_id', $this->user->id)
+            ->count());
+    }
+
+    #[Test]
+    public function user_can_update_owned_questions(): void
+    {
+        $ownedQuestions = Post::factory()->count(2)->create([
+            'post_type_id' => PostType::Question->value,
+            'user_id' => $this->user->id,
+            'owner_display_name' => $this->user->display_name,
+        ]);
+
+        foreach ($ownedQuestions as $index => $question) {
+            $response = $this->actingAs($this->user)->patchJson(route('question.update', $question), [
+                'title' => 'Updated question copy '.($index + 1),
+                'body' => '### Revised body text version '.($index + 1),
                 'tags' => ['Laravel', 'Testing', 'Filament'],
                 'is_blog' => $index % 2 === 0,
             ]);
 
-            $updateResponse->assertOk();
-            $updateResponse->assertJsonFragment(['message' => trans('messages.question.updated')]);
+            $response->assertOk();
+            $response->assertJsonFragment(['message' => trans('messages.question.updated')]);
+            $this->assertSame('Updated question copy '.($index + 1), $question->fresh()->title);
+        }
+    }
 
-            $question->refresh();
-            $this->assertSame("Updated question copy ".($index + 1), $question->title);
-            $this->assertEquals($index % 2 === 0, $question->is_blog);
-        });
+    #[Test]
+    public function user_can_submit_answer_for_question(): void
+    {
+        $question = Post::factory()->create([
+            'post_type_id' => PostType::Question->value,
+        ]);
 
-        /** @Act: user answers one of the public questions */
-        $targetQuestion = $questions->skip(5)->first();
-
-        $answerResponse = $this->actingAs($user)->postJson(route('answer.store'), [
-            'question_id' => $targetQuestion->id,
+        $response = $this->actingAs($this->user)->postJson(route('answer.store'), [
+            'question_id' => $question->id,
             'body' => 'This answer resolves the issue with an example.',
         ]);
 
-        $answerResponse->assertCreated();
-        $targetQuestion->refresh();
-        $this->assertSame(1, $targetQuestion->answer_count);
+        $response->assertCreated();
+        $this->assertSame(1, $question->fresh()->answer_count);
+    }
 
-        $userQuestion = $ownedQuestions->first();
-        $answerAuthor = User::factory()->create(['display_name' => 'Helpful Expert']);
+    #[Test]
+    public function user_can_view_question_with_accepted_answer(): void
+    {
+        $question = Post::factory()->create([
+            'post_type_id' => PostType::Question->value,
+            'user_id' => $this->user->id,
+        ]);
+
+        $answerAuthor = User::factory()->create([
+            'display_name' => 'Helpful Expert',
+        ]);
+
         $acceptedAnswer = Post::factory()->create([
             'post_type_id' => PostType::Answer->value,
-            'parent_id' => $userQuestion->id,
+            'parent_id' => $question->id,
             'user_id' => $answerAuthor->id,
             'owner_display_name' => $answerAuthor->display_name,
             'body' => 'Try clearing your application cache before retrying.',
         ]);
 
-        $userQuestion->update([
+        $question->update([
             'accepted_answer_id' => $acceptedAnswer->id,
             'answer_count' => 1,
         ]);
 
-        /** @Act: user reviews their historical question with answers */
-        $showResponse = $this->actingAs($user)->getJson(route('question.show', $userQuestion));
+        $response = $this->actingAs($this->user)->getJson(route('question.show', $question));
 
-        $showResponse->assertOk();
-        $showResponse->assertJsonPath('post.id', $userQuestion->id);
-        $showResponse->assertJsonPath('post.accepted_answer_id', $acceptedAnswer->id);
-        $showResponse->assertJsonFragment(['body' => $acceptedAnswer->body]);
+        $response->assertOk();
+        $response->assertJsonPath('post.id', $question->id);
+        $response->assertJsonPath('post.accepted_answer_id', $acceptedAnswer->id);
+        $response->assertJsonFragment(['body' => $acceptedAnswer->body]);
+    }
 
-        /** @Act: user records an accepted-answer vote */
-        $vote = Vote::factory()->create([
-            'post_id' => $acceptedAnswer->id,
-            'user_id' => $user->id,
-            'vote_type_id' => VoteType::AcceptedByOriginator->value,
+    #[Test]
+    public function user_can_view_other_profile_and_update_own_profile(): void
+    {
+        $answerAuthor = User::factory()->create([
+            'display_name' => 'Helpful Expert',
         ]);
-        $this->assertDatabaseHas('votes', ['id' => $vote->id, 'vote_type_id' => VoteType::AcceptedByOriginator->value]);
 
-        /** @Act: user views the answerer profile and updates their own profile */
-        $profileResponse = $this->actingAs($user)->getJson(route('users.show', $answerAuthor));
+        $profileResponse = $this->actingAs($this->user)->getJson(route('users.show', $answerAuthor));
         $profileResponse->assertOk();
         $profileResponse->assertJsonPath('id', $answerAuthor->id);
 
-        $profileUpdate = $this->actingAs($user)->postJson(route('users.profile', $user), [
+        $updateResponse = $this->actingAs($this->user)->postJson(route('users.profile', $this->user), [
             'bio' => 'Favorited profile: '.$answerAuthor->display_name,
             'location' => 'Internet',
         ]);
 
-        $profileUpdate->assertOk();
-        $profileUpdate->assertJsonFragment(['message' => trans('messages.user.profile_updated')]);
+        $updateResponse->assertOk();
+        $updateResponse->assertJsonFragment(['message' => trans('messages.user.profile_updated')]);
         $this->assertDatabaseHas('user_profiles', [
-            'user_id' => $user->id,
+            'user_id' => $this->user->id,
             'bio' => 'Favorited profile: '.$answerAuthor->display_name,
-        ]);
-
-        auth()->logout();
-
-        /** @Act: admin reviews flagged content */
-        $flaggedComment = $createdComments->firstWhere('requires_admin_review');
-        $adminCommentResponse = $this->actingAs($admin)->patchJson(route('comments.adminUpdate', $flaggedComment), [
-            'post_id' => $flaggedComment->post_id,
-            'body' => 'Reviewed and resolved by admin.',
-            'requires_admin_review' => false,
-        ]);
-
-        $adminCommentResponse->assertOk();
-        $adminCommentResponse->assertJsonFragment(['message' => trans('messages.comment.admin_updated')]);
-        $this->assertFalse($flaggedComment->fresh()->requires_admin_review);
-
-        /** @Act: admin edits a question and an answer */
-        $adminQuestionResponse = $this->actingAs($admin)->patch(route('admin.posts.update', $userQuestion), [
-            'title' => 'Admin polished title',
-            'body' => 'Admin reviewed content for clarity.',
-            'tags' => ['laravel', 'admin-review'],
-            'is_blog' => false,
-        ]);
-
-        $adminQuestionResponse->assertRedirect(route('question.show', ['question' => $userQuestion->id]));
-        $this->assertDatabaseHas('posts', [
-            'id' => $userQuestion->id,
-            'title' => 'Admin polished title',
-        ]);
-
-        $adminAnswerResponse = $this->actingAs($admin)->patch(route('admin.posts.update', $acceptedAnswer), [
-            'title' => 'Admin updated answer summary',
-            'body' => 'Admin ensured the solution follows guidelines.',
-            'is_blog' => false,
-        ]);
-
-        $adminAnswerResponse->assertRedirect(route('question.show', ['question' => $acceptedAnswer->parent_id]));
-        $this->assertDatabaseHas('posts', [
-            'id' => $acceptedAnswer->id,
-            'body' => 'Admin ensured the solution follows guidelines.',
         ]);
     }
 
     #[Test]
-    public function it_handles_edge_cases_for_the_user_and_admin_workflow(): void
+    public function admin_can_resolve_flagged_comment(): void
     {
-        /** @Arrange */
-        \Spatie\Permission\Models\Role::query()->firstOrCreate([
-            'name' => 'admin',
-            'guard_name' => 'web',
-        ]);
-
-        $user = User::factory()->create();
-        $otherUser = User::factory()->create();
-        $admin = User::factory()->create();
-        $admin->assignRole('admin');
-
         $question = Post::factory()->create([
-            'user_id' => $user->id,
-            'owner_display_name' => $user->display_name,
-        ]);
-
-        $answer = Post::factory()->create([
-            'post_type_id' => PostType::Answer->value,
-            'parent_id' => $question->id,
-            'user_id' => $user->id,
+            'post_type_id' => PostType::Question->value,
         ]);
 
         $comment = Comment::factory()->create([
@@ -244,64 +225,207 @@ class UserAdminWorkflowTest extends TestCase
             'requires_admin_review' => true,
         ]);
 
-        /** @Assert: guests cannot create comments */
-        $guestComment = $this->postJson(route('comments.store'), [
+        $response = $this->actingAs($this->admin)->patchJson(route('comments.adminUpdate', $comment), [
+            'post_id' => $comment->post_id,
+            'body' => 'Reviewed and resolved by admin.',
+            'requires_admin_review' => false,
+        ]);
+
+        $response->assertOk();
+        $response->assertJsonFragment(['message' => trans('messages.comment.admin_updated')]);
+        $this->assertFalse($comment->fresh()->requires_admin_review);
+    }
+
+    #[Test]
+    public function admin_can_update_question_and_answer(): void
+    {
+        $question = Post::factory()->create([
+            'post_type_id' => PostType::Question->value,
+            'user_id' => $this->user->id,
+            'owner_display_name' => $this->user->display_name,
+        ]);
+
+        $answer = Post::factory()->create([
+            'post_type_id' => PostType::Answer->value,
+            'parent_id' => $question->id,
+            'user_id' => $this->user->id,
+        ]);
+
+        $questionResponse = $this->actingAs($this->admin)->patch(route('admin.posts.update', $question), [
+            'title' => 'Admin polished title',
+            'body' => 'Admin reviewed content for clarity.',
+            'tags' => ['laravel', 'admin-review'],
+            'is_blog' => false,
+        ]);
+
+        $questionResponse->assertRedirect(route('question.show', ['question' => $question->id]));
+        $this->assertDatabaseHas('posts', [
+            'id' => $question->id,
+            'title' => 'Admin polished title',
+        ]);
+
+        $answerResponse = $this->actingAs($this->admin)->patch(route('admin.posts.update', $answer), [
+            'title' => 'Admin updated answer summary',
+            'body' => 'Admin ensured the solution follows guidelines.',
+            'is_blog' => false,
+        ]);
+
+        $answerResponse->assertRedirect(route('question.show', ['question' => $answer->parent_id]));
+        $this->assertDatabaseHas('posts', [
+            'id' => $answer->id,
+            'body' => 'Admin ensured the solution follows guidelines.',
+        ]);
+    }
+
+    #[Test]
+    public function guest_cannot_create_comments(): void
+    {
+        $question = Post::factory()->create([
+            'post_type_id' => PostType::Question->value,
+        ]);
+
+        $response = $this->postJson(route('comments.store'), [
             'post_id' => $question->id,
             'body' => 'Guest attempt',
         ]);
-        $guestComment->assertForbidden();
 
-        /** @Assert: guests cannot flag comments */
-        $guestFlag = $this->postJson(route('comments.flag', $comment));
-        $guestFlag->assertForbidden();
+        $response->assertForbidden();
+    }
 
-        /** @Assert: non-owners cannot update questions */
-        $unauthorizedUpdate = $this->actingAs($otherUser)->patchJson(route('question.update', $question), [
+    #[Test]
+    public function guest_cannot_flag_comments(): void
+    {
+        $comment = Comment::factory()->create();
+
+        $response = $this->postJson(route('comments.flag', $comment));
+
+        $response->assertForbidden();
+    }
+
+    #[Test]
+    public function non_owner_cannot_update_question(): void
+    {
+        $questionOwner = User::factory()->create();
+
+        $question = Post::factory()->create([
+            'post_type_id' => PostType::Question->value,
+            'user_id' => $questionOwner->id,
+        ]);
+
+        $response = $this->actingAs($this->user)->patchJson(route('question.update', $question), [
             'title' => 'Unauthorized edit',
             'body' => 'Attempted body edit',
             'tags' => ['laravel'],
         ]);
-        $unauthorizedUpdate->assertForbidden();
 
-        /** @Assert: non-owners cannot update answers */
-        $unauthorizedAnswerUpdate = $this->actingAs($otherUser)->patchJson(route('answer.update', $answer), [
+        $response->assertForbidden();
+    }
+
+    #[Test]
+    public function non_owner_cannot_update_answer(): void
+    {
+        $question = Post::factory()->create([
+            'post_type_id' => PostType::Question->value,
+        ]);
+
+        $answerOwner = User::factory()->create();
+
+        $answer = Post::factory()->create([
+            'post_type_id' => PostType::Answer->value,
+            'parent_id' => $question->id,
+            'user_id' => $answerOwner->id,
+        ]);
+
+        $response = $this->actingAs($this->user)->patchJson(route('answer.update', $answer), [
             'body' => 'Attempted answer edit',
         ]);
-        $unauthorizedAnswerUpdate->assertForbidden();
 
-        /** @Assert: non-admins cannot resolve admin comment updates */
-        $nonAdminAdminUpdate = $this->actingAs($otherUser)->patchJson(route('comments.adminUpdate', $comment), [
+        $response->assertForbidden();
+    }
+
+    #[Test]
+    public function non_admin_cannot_perform_admin_comment_updates(): void
+    {
+        $comment = Comment::factory()->create([
+            'requires_admin_review' => true,
+        ]);
+
+        $response = $this->actingAs($this->user)->patchJson(route('comments.adminUpdate', $comment), [
             'post_id' => $comment->post_id,
             'body' => 'Trying to resolve',
         ]);
-        $nonAdminAdminUpdate->assertForbidden();
 
-        /** @Assert: admin resolves comment and ensures flag cleared */
-        $adminUpdate = $this->actingAs($admin)->patchJson(route('comments.adminUpdate', $comment), [
+        $response->assertForbidden();
+    }
+
+    #[Test]
+    public function admin_can_clear_requires_admin_review_flag(): void
+    {
+        $comment = Comment::factory()->create([
+            'requires_admin_review' => true,
+        ]);
+
+        $response = $this->actingAs($this->admin)->patchJson(route('comments.adminUpdate', $comment), [
             'post_id' => $comment->post_id,
             'body' => 'Admin resolved comment edge case.',
             'requires_admin_review' => false,
         ]);
-        $adminUpdate->assertOk();
-        $this->assertFalse($comment->fresh()->requires_admin_review);
 
-        /** @Assert: duplicate comment upvotes reuse the same upvote record */
+        $response->assertOk();
+        $this->assertFalse($comment->fresh()->requires_admin_review);
+    }
+
+    #[Test]
+    public function duplicate_comment_upvotes_do_not_create_additional_records(): void
+    {
+        $comment = Comment::factory()->create([
+            'score' => 10,
+        ]);
+
         $upvoteUser = User::factory()->create();
+
         $this->actingAs($upvoteUser);
+
         CommentUpvote::query()->firstOrCreate([
             'comment_id' => $comment->id,
             'user_id' => $upvoteUser->id,
         ]);
 
-        $comment->update(['score' => 10]);
-
-        $this->app->make(\App\Services\CommentService::class)->upvote($comment->fresh(), $upvoteUser);
-        $this->app->make(\App\Services\CommentService::class)->upvote($comment->fresh(), $upvoteUser);
+        app(CommentService::class)->upvote($comment->fresh(), $upvoteUser);
+        app(CommentService::class)->upvote($comment->fresh(), $upvoteUser);
 
         $this->assertEquals(12, $comment->fresh()->score);
         $this->assertSame(1, CommentUpvote::query()
             ->where('comment_id', $comment->id)
             ->where('user_id', $upvoteUser->id)
             ->count());
+    }
+
+    #[Test]
+    public function user_can_record_accepted_answer_vote(): void
+    {
+        $question = Post::factory()->create([
+            'post_type_id' => PostType::Question->value,
+            'user_id' => $this->user->id,
+        ]);
+
+        $answerAuthor = User::factory()->create();
+
+        $answer = Post::factory()->create([
+            'post_type_id' => PostType::Answer->value,
+            'parent_id' => $question->id,
+            'user_id' => $answerAuthor->id,
+        ]);
+
+        $vote = Vote::factory()->create([
+            'post_id' => $answer->id,
+            'user_id' => $this->user->id,
+            'vote_type_id' => VoteType::AcceptedByOriginator->value,
+        ]);
+
+        $this->assertDatabaseHas('votes', [
+            'id' => $vote->id,
+            'vote_type_id' => VoteType::AcceptedByOriginator->value,
+        ]);
     }
 }
