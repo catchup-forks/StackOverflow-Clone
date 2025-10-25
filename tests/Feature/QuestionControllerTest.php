@@ -51,8 +51,13 @@ class QuestionControllerTest extends TestCase
         $response = $this->get(route('question.index'));
 
         /** @Assert */
-        $response->assertOk();
         $response->assertViewIs('public.questions.index');
+        $response->assertViewHas('questions', function ($questions) {
+            return $questions->count() === 3
+                && collect($questions->items())->every(
+                    fn ($question) => $question->post_type_id === PostType::Question->value
+                );
+        });
     }
 
     #[Test]
@@ -65,8 +70,9 @@ class QuestionControllerTest extends TestCase
         $response = $this->getJson(route('question.index'));
 
         /** @Assert */
-        $response->assertOk();
         $response->assertJsonStructure(['data']);
+        $response->assertJsonCount(2, 'data');
+        $response->assertJsonFragment(['post_type_id' => PostType::Question->value]);
     }
 
     #[Test]
@@ -79,8 +85,9 @@ class QuestionControllerTest extends TestCase
         $response = $this->actingAs(User::factory()->create())->get(route('question.create'));
 
         /** @Assert */
-        $response->assertOk();
         $response->assertViewIs('public.question.create');
+        $response->assertViewHas('tags', fn ($tags) => $tags->count() === 3);
+        $response->assertViewHas('selectedTags', fn ($selected) => $selected === []);
     }
 
     #[Test]
@@ -93,8 +100,9 @@ class QuestionControllerTest extends TestCase
         $response = $this->get(route('question.show', $question));
 
         /** @Assert */
-        $response->assertOk();
         $response->assertViewIs('public.question.index');
+        $response->assertViewHas('post', fn ($post) => $post->id === $question->id);
+        $response->assertViewHas('answers', fn ($answers) => $answers->count() === 0);
     }
 
     #[Test]
@@ -107,8 +115,8 @@ class QuestionControllerTest extends TestCase
         $response = $this->getJson(route('question.show', $question));
 
         /** @Assert */
-        $response->assertOk();
         $response->assertJson(['id' => $question->id]);
+        $response->assertJsonPath('post_type_id', PostType::Question->value);
     }
 
     #[Test]
@@ -121,8 +129,10 @@ class QuestionControllerTest extends TestCase
         $response = $this->get(route('question.edit', $question));
 
         /** @Assert */
-        $response->assertOk();
         $response->assertViewIs('public.question.edit');
+        $response->assertViewHas('question', fn ($viewQuestion) => $viewQuestion->id === $question->id);
+        $response->assertViewHas('tags', fn ($tags) => $tags instanceof \Illuminate\Support\Collection);
+        $response->assertViewHas('selectedTags', fn ($selected) => is_array($selected));
     }
 
     #[Test]
