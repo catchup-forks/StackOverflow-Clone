@@ -8,6 +8,7 @@ use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Carbon;
 
 class PostService extends AbstractBaseService
@@ -32,7 +33,7 @@ class PostService extends AbstractBaseService
     public function createQuestion(array $data, User $user): Post
     {
         $now = Carbon::now();
-        $tagNames = Tag::query()->whereIn('id', $data['tags'])->pluck('name')->all();
+        $tagNames = $this->resolveTagNames($data['tags']);
         $post = Post::query()->create([
             'post_type_id' => PostType::Question->value,
             'creation_date' => $now,
@@ -60,7 +61,7 @@ class PostService extends AbstractBaseService
 
     public function updateQuestion(Post $post, array $data, User $user): Post
     {
-        $tagNames = Tag::query()->whereIn('id', $data['tags'])->pluck('name')->all();
+        $tagNames = $this->resolveTagNames($data['tags']);
 
         $post->fill([
             'body' => $data['body'],
@@ -129,6 +130,22 @@ class PostService extends AbstractBaseService
                 $tag->increment('count');
             }
         }
+    }
+
+
+    /**
+     * @param  array<int, int|string>  $tagIds
+     * @return array<int, string>
+     */
+    private function resolveTagNames(array $tagIds): array
+    {
+        $tags = Tag::query()->whereIn('id', $tagIds)->pluck('name', 'id');
+
+        if ($tags->count() !== count($tagIds)) {
+            throw (new ModelNotFoundException())->setModel(Tag::class);
+        }
+
+        return $tags->values()->all();
     }
 
 }

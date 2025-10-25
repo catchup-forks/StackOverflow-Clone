@@ -11,8 +11,6 @@ return [
 
     'asset_url' => env('ASSET_URL'),
 
-    'default_franchise' => env('APP_DEFAULT_FRANCHISE', 'global'),
-
     'timezone' => 'UTC',
 
     'locale' => 'en',

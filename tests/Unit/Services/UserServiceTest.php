@@ -2,13 +2,16 @@
 
 namespace Tests\Unit\Services;
 
-use App\Models\User;
 use App\Services\UserService;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
+#[CoversClass(UserService::class)]
 class UserServiceTest extends TestCase
 {
     use RefreshDatabase;
@@ -79,5 +82,32 @@ class UserServiceTest extends TestCase
 
         /** @Assert */
         $this->assertDatabaseMissing('users', ['id' => $user->id]);
+    }
+
+    #[Test]
+    public function it_rejects_invalid_current_passwords(): void
+    {
+        /** @Arrange */
+        $service = new UserService();
+        $user = User::factory()->create(['password' => Hash::make('old-password')]);
+
+        /** @Act */
+        $isValid = $service->validateCurrentPassword($user, 'wrong-password');
+
+        /** @Assert */
+        $this->assertFalse($isValid);
+    }
+
+    #[Test]
+    public function it_throws_when_user_missing_for_recent_posts(): void
+    {
+        /** @Arrange */
+        $service = new UserService();
+
+        /** @Assert */
+        $this->expectException(ModelNotFoundException::class);
+
+        /** @Act */
+        $service->findWithRecentPosts(999);
     }
 }

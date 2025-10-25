@@ -2,14 +2,17 @@
 
 namespace Tests\Unit\Services;
 
+use App\Services\AnswerService;
 use App\Enums\PostType;
 use App\Models\Post;
 use App\Models\User;
-use App\Services\AnswerService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
+#[CoversClass(AnswerService::class)]
 class AnswerServiceTest extends TestCase
 {
     use RefreshDatabase;
@@ -72,5 +75,22 @@ class AnswerServiceTest extends TestCase
         /** @Assert */
         $this->assertDatabaseMissing('posts', ['id' => $answer->id]);
         $this->assertSame(0, $question->fresh()->answer_count);
+    }
+
+    #[Test]
+    public function it_throws_when_creating_for_missing_question(): void
+    {
+        /** @Arrange */
+        $service = new AnswerService();
+        $user = User::factory()->create();
+
+        /** @Assert */
+        $this->expectException(ModelNotFoundException::class);
+
+        /** @Act */
+        $service->create([
+            'question_id' => 999,
+            'body' => 'Attempted answer.',
+        ], $user);
     }
 }

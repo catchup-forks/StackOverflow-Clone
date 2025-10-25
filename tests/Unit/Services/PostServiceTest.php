@@ -2,15 +2,18 @@
 
 namespace Tests\Unit\Services;
 
+use App\Services\PostService;
 use App\Enums\PostType;
 use App\Models\Post;
 use App\Models\Tag;
 use App\Models\User;
-use App\Services\PostService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
+#[CoversClass(PostService::class)]
 class PostServiceTest extends TestCase
 {
     use RefreshDatabase;
@@ -73,5 +76,23 @@ class PostServiceTest extends TestCase
         /** @Assert */
         $this->assertDatabaseMissing('posts', ['id' => $question->id]);
         $this->assertDatabaseCount('posts', 0);
+    }
+
+    #[Test]
+    public function it_throws_when_tags_are_missing(): void
+    {
+        /** @Arrange */
+        $service = new PostService();
+        $user = User::factory()->create();
+
+        /** @Assert */
+        $this->expectException(ModelNotFoundException::class);
+
+        /** @Act */
+        $service->createQuestion([
+            'title' => 'Invalid question',
+            'body' => 'Missing tags should fail.',
+            'tags' => [999],
+        ], $user);
     }
 }

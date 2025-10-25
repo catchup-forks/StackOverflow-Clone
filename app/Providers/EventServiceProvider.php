@@ -18,7 +18,6 @@ use App\Models\TagSynonym;
 use App\Models\User;
 use App\Models\UserProfile;
 use App\Models\Vote;
-use App\Observers\AssignDefaultFranchiseObserver;
 use App\Observers\BaseModelObserver;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -51,13 +50,5 @@ class EventServiceProvider extends ServiceProvider
             $model::observe($observer);
         }
 
-        $franchiseObserver = AssignDefaultFranchiseObserver::class;
-
-        foreach ([
-            Post::class,
-            User::class,
-        ] as $model) {
-            $model::observe($franchiseObserver);
-        }
     }
 }

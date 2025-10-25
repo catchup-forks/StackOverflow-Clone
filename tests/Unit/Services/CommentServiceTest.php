@@ -2,15 +2,18 @@
 
 namespace Tests\Unit\Services;
 
+use App\Services\CommentService;
 use App\Enums\PostType;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\User;
-use App\Services\CommentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
+#[CoversClass(CommentService::class)]
 class CommentServiceTest extends TestCase
 {
     use RefreshDatabase;
@@ -75,5 +78,22 @@ class CommentServiceTest extends TestCase
         /** @Assert */
         $this->assertFalse($updated->requires_admin_review);
         $this->assertEquals('Reviewed', $updated->body);
+    }
+
+    #[Test]
+    public function it_throws_when_comment_post_is_missing(): void
+    {
+        /** @Arrange */
+        $service = new CommentService();
+        $user = User::factory()->create();
+
+        /** @Assert */
+        $this->expectException(ModelNotFoundException::class);
+
+        /** @Act */
+        $service->create([
+            'post_id' => 999,
+            'body' => 'Attempted comment.',
+        ], $user);
     }
 }

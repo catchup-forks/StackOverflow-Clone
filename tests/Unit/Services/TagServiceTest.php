@@ -2,12 +2,16 @@
 
 namespace Tests\Unit\Services;
 
-use App\Models\Tag;
 use App\Services\TagService;
+use App\Models\Tag;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use InvalidArgumentException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
+#[CoversClass(TagService::class)]
 class TagServiceTest extends TestCase
 {
     use RefreshDatabase;
@@ -83,5 +87,31 @@ class TagServiceTest extends TestCase
         /** @Assert */
         sort($ids);
         $this->assertEquals($tags->pluck('id')->sort()->values()->all(), $ids);
+    }
+
+    #[Test]
+    public function it_requires_a_tag_name_when_creating(): void
+    {
+        /** @Arrange */
+        $service = new TagService();
+
+        /** @Assert */
+        $this->expectException(InvalidArgumentException::class);
+
+        /** @Act */
+        $service->create(['count' => 0]);
+    }
+
+    #[Test]
+    public function it_throws_when_tag_not_found(): void
+    {
+        /** @Arrange */
+        $service = new TagService();
+
+        /** @Assert */
+        $this->expectException(ModelNotFoundException::class);
+
+        /** @Act */
+        $service->find(999);
     }
 }

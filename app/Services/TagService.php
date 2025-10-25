@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Tag;
+use InvalidArgumentException;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class TagService extends AbstractBaseService
@@ -19,6 +20,10 @@ class TagService extends AbstractBaseService
 
     public function create(array $data): Tag
     {
+        if (empty($data['name'])) {
+            throw new InvalidArgumentException('Tag name is required.');
+        }
+
         return Tag::query()->create($data);
     }
 
