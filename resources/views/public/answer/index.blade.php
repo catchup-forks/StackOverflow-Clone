@@ -2,15 +2,17 @@
 
 @section('content')
     <div class="space-y-6">
-        <h1 class="text-2xl font-semibold">{{ trans('stackoverflow.answers.title') }}</h1>
+        <h1 class="heading-primary">{{ trans('stackoverflow.answers.title') }}</h1>
         <div class="space-y-4">
             @foreach ($answers as $answer)
-                <article class="rounded border border-slate-200 bg-white p-4 shadow-sm">
-                    <p class="text-slate-700">{{ $answer->body }}</p>
-                    <p class="text-sm text-slate-500">{{ trans('stackoverflow.answers.by_name', ['name' => $answer->owner_display_name]) }}</p>
+                <article class="card space-y-3 transition-colors duration-300">
+                    <p>{{ $answer->body }}</p>
+                    <p class="text-sm text-muted">{{ trans('stackoverflow.answers.by_name', ['name' => $answer->owner_display_name]) }}</p>
                 </article>
             @endforeach
         </div>
-        {{ $answers->links() }}
+        <div>
+            {{ $answers->links() }}
+        </div>
     </div>
 @endsection

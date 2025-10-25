@@ -1,12 +1,12 @@
 @foreach($answers as $a)
-    <div class="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div class="card space-y-4 transition-colors duration-300">
         <div class="flex items-start gap-6">
-            <div class="flex w-24 flex-col items-center gap-3">
-                <span class="text-slate-500">▲</span>
-                <span class="text-xl font-semibold text-slate-700">{{ $a->votes->count() }}</span>
-                <span class="text-slate-500">▼</span>
+            <div class="vote-stack">
+                <button type="button" class="vote-stack__button">▲</button>
+                <p class="vote-stack__score">{{ $a->votes->count() }}</p>
+                <button type="button" class="vote-stack__button">▼</button>
             </div>
-            <div class="space-y-4 text-slate-700">
+            <div class="space-y-4 text-base leading-relaxed">
                 <p>{{ $a->body }}</p>
             </div>
         </div>
