@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends BaseModel implements AuthenticatableContract
+class User extends BaseModel implements AuthenticatableContract, FilamentUser
 {
     use Authenticatable;
     use HasFactory;
@@ -120,4 +121,13 @@ class User extends BaseModel implements AuthenticatableContract
     |--------------------------------------------------------------------------
     */
     #endregion
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        if ($panel->getId() === 'admin') {
+            return $this->hasRole('admin');
+        }
+
+        return true;
+    }
 }
