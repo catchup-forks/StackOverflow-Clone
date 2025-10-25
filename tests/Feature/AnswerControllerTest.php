@@ -47,8 +47,13 @@ class AnswerControllerTest extends TestCase
         $response = $this->get(route('answer.index'));
 
         /** @Assert */
-        $response->assertOk();
         $response->assertViewIs('public.answer.index');
+        $response->assertViewHas('answers', function ($answers) {
+            return $answers->count() === 2
+                && collect($answers->items())->every(
+                    fn ($answer) => $answer->post_type_id === PostType::Answer->value
+                );
+        });
     }
 
     #[Test]
@@ -61,8 +66,9 @@ class AnswerControllerTest extends TestCase
         $response = $this->getJson(route('answer.index'));
 
         /** @Assert */
-        $response->assertOk();
         $response->assertJsonStructure(['data']);
+        $response->assertJsonCount(2, 'data');
+        $response->assertJsonFragment(['post_type_id' => PostType::Answer->value]);
     }
 
     #[Test]
@@ -105,8 +111,8 @@ class AnswerControllerTest extends TestCase
         $response = $this->getJson(route('answer.show', $answer));
 
         /** @Assert */
-        $response->assertOk();
         $response->assertJson(['id' => $answer->id]);
+        $response->assertJsonPath('post_type_id', PostType::Answer->value);
     }
 
     #[Test]
@@ -119,8 +125,9 @@ class AnswerControllerTest extends TestCase
         $response = $this->get(route('answer.edit', $answer));
 
         /** @Assert */
-        $response->assertOk();
         $response->assertViewIs('public.answer.edit');
+        $response->assertViewHas('answer', fn ($viewAnswer) => $viewAnswer->id === $answer->id);
+        $response->assertViewHas('question', fn ($question) => $question === null);
     }
 
     #[Test]

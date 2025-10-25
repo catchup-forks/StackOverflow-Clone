@@ -18,28 +18,39 @@ class UserControllerTest extends TestCase
     public function it_lists_users_as_html(): void
     {
         /** @Arrange */
-        User::factory()->count(3)->create();
+        User::factory()->count(3)->sequence(
+            ['display_name' => 'Alice'],
+            ['display_name' => 'Bob'],
+            ['display_name' => 'Charlie']
+        )->create();
 
         /** @Act */
         $response = $this->get(route('users.index'));
 
         /** @Assert */
-        $response->assertOk();
         $response->assertViewIs('public.users.index');
+        $response->assertViewHas('users', function ($users) {
+            return $users->count() === 3
+                && collect($users->items())->pluck('display_name')->contains('Alice');
+        });
+        $response->assertViewHas('search', fn ($search) => $search === '');
     }
 
     #[Test]
     public function it_lists_users_as_json(): void
     {
         /** @Arrange */
-        User::factory()->count(2)->create();
+        $firstUser = User::factory()->create(['display_name' => 'Daisy']);
+        $secondUser = User::factory()->create(['display_name' => 'Elliot']);
 
         /** @Act */
         $response = $this->getJson(route('users.index'));
 
         /** @Assert */
-        $response->assertOk();
         $response->assertJsonStructure(['data']);
+        $response->assertJsonCount(2, 'data');
+        $response->assertJsonFragment(['display_name' => $firstUser->display_name]);
+        $response->assertJsonFragment(['display_name' => $secondUser->display_name]);
     }
 
     #[Test]
@@ -51,7 +62,6 @@ class UserControllerTest extends TestCase
         $response = $this->get(route('users.create'));
 
         /** @Assert */
-        $response->assertOk();
         $response->assertViewIs('public.users.create');
     }
 
@@ -119,8 +129,9 @@ class UserControllerTest extends TestCase
         $response = $this->get(route('users.show', $user));
 
         /** @Assert */
-        $response->assertOk();
         $response->assertViewIs('public.user.show');
+        $response->assertViewHas('user', fn ($viewUser) => $viewUser->id === $user->id);
+        $response->assertViewHas('recentPosts', fn ($recentPosts) => $recentPosts instanceof \Illuminate\Support\Collection);
     }
 
     #[Test]
@@ -133,8 +144,8 @@ class UserControllerTest extends TestCase
         $response = $this->getJson(route('users.show', $user));
 
         /** @Assert */
-        $response->assertOk();
         $response->assertJson(['id' => $user->id]);
+        $response->assertJsonPath('display_name', $user->display_name);
     }
 
     #[Test]
@@ -147,8 +158,8 @@ class UserControllerTest extends TestCase
         $response = $this->get(route('users.edit', $user));
 
         /** @Assert */
-        $response->assertOk();
         $response->assertViewIs('public.user.edit');
+        $response->assertViewHas('user', fn ($viewUser) => $viewUser->id === $user->id);
     }
 
     #[Test]
@@ -186,8 +197,8 @@ class UserControllerTest extends TestCase
         ]);
 
         /** @Assert */
-        $response->assertOk();
         $response->assertJsonFragment(['email' => 'updated-json@example.com']);
+        $response->assertJsonPath('user.id', $user->id);
     }
 
     #[Test]
@@ -242,8 +253,8 @@ class UserControllerTest extends TestCase
         ]);
 
         /** @Assert */
-        $response->assertOk();
         $response->assertJsonFragment(['message' => trans('messages.user.profile_updated')]);
+        $response->assertJsonPath('profile.bio', 'Developer');
     }
 
     #[Test]
@@ -304,7 +315,6 @@ class UserControllerTest extends TestCase
         $response = $this->deleteJson(route('users.destroy', $user));
 
         /** @Assert */
-        $response->assertOk();
         $response->assertJsonFragment(['message' => trans('messages.user.deleted')]);
     }
 }

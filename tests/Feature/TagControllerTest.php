@@ -24,8 +24,11 @@ class TagControllerTest extends TestCase
         $response = $this->get(route('tags.index'));
 
         /** @Assert */
-        $response->assertOk();
         $response->assertViewIs('public.tags.index');
+        $response->assertViewHas('tags', function ($tags) {
+            return $tags->count() === 3
+                && collect($tags->items())->every(fn ($tag) => $tag instanceof Tag);
+        });
     }
 
     #[Test]
@@ -38,8 +41,8 @@ class TagControllerTest extends TestCase
         $response = $this->getJson(route('tags.index'));
 
         /** @Assert */
-        $response->assertOk();
         $response->assertJsonStructure(['data']);
+        $response->assertJsonCount(2, 'data');
     }
 
     #[Test]
@@ -51,8 +54,8 @@ class TagControllerTest extends TestCase
         $response = $this->get(route('tags.create'));
 
         /** @Assert */
-        $response->assertOk();
         $response->assertViewIs('public.tags.create');
+        $response->assertViewHas('tag', fn ($tag) => $tag instanceof Tag && ! $tag->exists);
     }
 
     #[Test]
@@ -84,8 +87,8 @@ class TagControllerTest extends TestCase
         $response = $this->get(route('tags.show', $tag));
 
         /** @Assert */
-        $response->assertOk();
         $response->assertViewIs('public.tags.show');
+        $response->assertViewHas('tag', fn ($viewTag) => $viewTag->id === $tag->id);
     }
 
     #[Test]
@@ -98,8 +101,8 @@ class TagControllerTest extends TestCase
         $response = $this->getJson(route('tags.show', $tag));
 
         /** @Assert */
-        $response->assertOk();
         $response->assertJson(['id' => $tag->id]);
+        $response->assertJsonPath('name', $tag->name);
     }
 
     #[Test]
@@ -112,8 +115,8 @@ class TagControllerTest extends TestCase
         $response = $this->get(route('tags.edit', $tag));
 
         /** @Assert */
-        $response->assertOk();
         $response->assertViewIs('public.tags.edit');
+        $response->assertViewHas('tag', fn ($viewTag) => $viewTag->id === $tag->id);
     }
 
     #[Test]
